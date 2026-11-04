@@ -69,14 +69,19 @@ public sealed class SettingsViewModel
         }
         else if (OperatingSystem.IsWindows())
         {
-            UpdateWindowsStartupRegistry(Config.StartWithWindows, engineExecutablePath);
+            UpdateWindowsStartupRegistry(Config.StartWithWindows, engineExecutablePath, Config.HideDialogOnStartup);
         }
 
         ConfigReloadCoordinator.SignalReload(_reloadEventName);
     }
 
+    public static string BuildStartupRegistryCommand(string engineExecutablePath, bool hideDialogOnStartup) =>
+        hideDialogOnStartup
+            ? $"\"{engineExecutablePath}\""
+            : $"\"{engineExecutablePath}\" --show-ui";
+
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public static void UpdateWindowsStartupRegistry(bool enable, string engineExecutablePath)
+    public static void UpdateWindowsStartupRegistry(bool enable, string engineExecutablePath, bool hideDialogOnStartup = true)
     {
         try
         {
@@ -88,7 +93,7 @@ public sealed class SettingsViewModel
 
             if (enable)
             {
-                key.SetValue(RunRegistryValueName, $"\"{engineExecutablePath}\"");
+                key.SetValue(RunRegistryValueName, BuildStartupRegistryCommand(engineExecutablePath, hideDialogOnStartup));
             }
             else
             {

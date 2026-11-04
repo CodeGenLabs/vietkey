@@ -31,7 +31,8 @@ public sealed class MainWindow
         bool smartSwitch,
         bool browserAutocompleteFix,
         bool enableMacros,
-        bool startWithWindows)
+        bool startWithWindows,
+        bool hideDialogOnStartup = false)
     {
         ViewModel.Config = ViewModel.Config with
         {
@@ -44,7 +45,8 @@ public sealed class MainWindow
             SmartSwitch = smartSwitch,
             BrowserAutocompleteFix = browserAutocompleteFix,
             EnableMacros = enableMacros,
-            StartWithWindows = startWithWindows
+            StartWithWindows = startWithWindows,
+            HideDialogOnStartup = hideDialogOnStartup
         };
     }
 
@@ -135,6 +137,7 @@ public partial class DesktopSettingsWindow : Window
             BrowserFixToggle.IsChecked = cfg.BrowserAutocompleteFix;
             MacrosToggle.IsChecked = cfg.EnableMacros;
             StartupToggle.IsChecked = cfg.StartWithWindows;
+            HideDialogOnStartupToggle.IsChecked = cfg.HideDialogOnStartup;
 
             UpdateHeaderBadge(cfg.VietnameseEnabled, cfg.InputMethod);
             RefreshMacroList();
@@ -178,6 +181,8 @@ public partial class DesktopSettingsWindow : Window
         MacrosToggle.Unchecked += checkChanged;
         StartupToggle.Checked += checkChanged;
         StartupToggle.Unchecked += checkChanged;
+        HideDialogOnStartupToggle.Checked += checkChanged;
+        HideDialogOnStartupToggle.Unchecked += checkChanged;
 
         InputMethodCombo.SelectionChanged += (_, _) =>
         {
@@ -290,7 +295,8 @@ public partial class DesktopSettingsWindow : Window
             smartSwitch: SmartSwitchToggle.IsChecked ?? true,
             browserAutocompleteFix: BrowserFixToggle.IsChecked ?? true,
             enableMacros: MacrosToggle.IsChecked ?? true,
-            startWithWindows: StartupToggle.IsChecked ?? false);
+            startWithWindows: StartupToggle.IsChecked ?? false,
+            hideDialogOnStartup: HideDialogOnStartupToggle.IsChecked ?? false);
 
         UpdateHeaderBadge(vietnameseEnabled, method);
         _controller.ViewModel.SaveAndSignalReload(_engineExecutablePath);

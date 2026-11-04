@@ -43,7 +43,8 @@ public sealed class SettingsViewModelTests : IDisposable
         {
             InputMethod = InputMethod.Vni,
             ModernTone = false,
-            StartWithWindows = true
+            StartWithWindows = true,
+            HideDialogOnStartup = true
         };
 
         vm.SaveAndSignalReload(@"C:\VietKey\VietKey.Engine.exe");
@@ -52,9 +53,18 @@ public sealed class SettingsViewModelTests : IDisposable
         Assert.Equal(InputMethod.Vni, reloaded.InputMethod);
         Assert.False(reloaded.ModernTone);
         Assert.True(reloaded.StartWithWindows);
+        Assert.True(reloaded.HideDialogOnStartup);
         Assert.Equal("Việt Nam", coordinator.CurrentMacros["vn"]);
         Assert.True(registeredStartup);
         Assert.Equal(@"C:\VietKey\VietKey.Engine.exe", registeredExe);
+
+        // Verify startup command generation with HideDialogOnStartup checked (background only) vs unchecked (--show-ui)
+        Assert.Equal(
+            "\"C:\\VietKey\\VietKey.Engine.exe\"",
+            SettingsViewModel.BuildStartupRegistryCommand(@"C:\VietKey\VietKey.Engine.exe", hideDialogOnStartup: true));
+        Assert.Equal(
+            "\"C:\\VietKey\\VietKey.Engine.exe\" --show-ui",
+            SettingsViewModel.BuildStartupRegistryCommand(@"C:\VietKey\VietKey.Engine.exe", hideDialogOnStartup: false));
     }
 
     // @covers REQ-settings-3
@@ -91,7 +101,8 @@ public sealed class SettingsViewModelTests : IDisposable
             smartSwitch: false,
             browserAutocompleteFix: true,
             enableMacros: false,
-            startWithWindows: true);
+            startWithWindows: true,
+            hideDialogOnStartup: true);
 
         app.MainWindow.CloseAndFlush(@"C:\VietKey\VietKey.Engine.exe");
         Assert.True(app.HasExited);
@@ -106,6 +117,7 @@ public sealed class SettingsViewModelTests : IDisposable
         Assert.False(savedConfig.SmartSwitch);
         Assert.False(savedConfig.EnableMacros);
         Assert.True(savedConfig.StartWithWindows);
+        Assert.True(savedConfig.HideDialogOnStartup);
     }
 
     public void Dispose()

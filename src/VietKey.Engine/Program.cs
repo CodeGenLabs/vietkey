@@ -72,7 +72,9 @@ public static class Program
         using var hook = new LowLevelKeyboardHook(processor);
         hook.Start();
 
-        if (args.Contains("--show-ui"))
+        bool shouldShowUi = args.Contains("--show-ui")
+            || (args.Contains("--startup") && !reloadCoordinator.CurrentConfig.HideDialogOnStartup);
+        if (shouldShowUi)
         {
             settingsLauncher.LaunchSettingsUi();
         }

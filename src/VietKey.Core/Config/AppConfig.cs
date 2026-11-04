@@ -25,6 +25,7 @@ public sealed record AppConfig
     public bool BrowserAutocompleteFix { get; init; } = true;
     public bool EnableMacros { get; init; } = true;
     public bool StartWithWindows { get; init; } = false;
+    public bool HideDialogOnStartup { get; init; } = false;
     public ToggleHotkey ToggleHotkey { get; init; } = ToggleHotkey.AltZ;
 
     public static AppConfig Default { get; } = new();
