@@ -20,7 +20,7 @@
       },
       "other": {
         "files": 12,
-        "lines": 6218
+        "lines": 5832
       },
       "typescript": {
         "files": 1,
@@ -48,7 +48,7 @@
       "tests/VietKey.Core.Tests/VietKey.Core.Tests.csproj"
     ]
   },
-  "generated_from_commit": "6d27f09666a3521ec731291505ca36f3f7bfa09e",
+  "generated_from_commit": "1953ec24f351b2722e0fdc0fb58afcbd6dc50c48",
   "generator": "forge sync derived",
   "tool": "forge"
 }
