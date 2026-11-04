@@ -1,8 +1,12 @@
+<p align="center">
+  <img src="assets/logo-banner.png" alt="VietKey — Gõ tiếng Việt dễ dàng" width="540"/>
+</p>
+
 # VietKey — Bộ gõ Tiếng Việt Native cho Windows 11
 
 [![.NET 8.0](https://img.shields.io/badge/.NET-8.0%20Windows-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2011-0078D4?logo=windows11)](https://www.microsoft.com/windows)
-[![Tests](https://img.shields.io/badge/Tests-118%2F118%20Passing-16A34A)](#kiểm-thử-tự-động)
+[![Tests](https://img.shields.io/badge/Tests-119%2F119%20Passing-16A34A)](#kiểm-thử-tự-động)
 [![Architecture](https://img.shields.io/badge/RAM-~3--8%20MB%20Idle-0EA5E9)](#kiến-trúc-2-tiến-trình-dual-process)
 
 **VietKey** là bộ gõ Tiếng Việt hiện đại dành cho **Windows 11**, được thiết kế xoay quanh 3 tiêu chí cốt lõi:

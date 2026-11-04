@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using VietKey.Core.Config;
 using VietKey.Core.Typing;
 using VietKey.UI.ViewModels;
@@ -246,12 +247,22 @@ public partial class DesktopSettingsWindow : Window
 
     private void UpdateHeaderBadge(bool vietnameseEnabled, InputMethod method)
     {
-        ModeBadgeText.Text = vietnameseEnabled ? "V" : "E";
-        ModeBadgeBorder.Background = new SolidColorBrush(
-            vietnameseEnabled ? Color.FromRgb(217, 45, 32) : Color.FromRgb(29, 78, 216));
+        string iconUri = vietnameseEnabled
+            ? "pack://application:,,,/Assets/icon-v.png"
+            : "pack://application:,,,/Assets/icon-e.png";
+        string windowIconUri = vietnameseEnabled
+            ? "pack://application:,,,/Assets/icon-v.ico"
+            : "pack://application:,,,/Assets/icon-e.ico";
+
+        ActiveModeIconImage.Source = new BitmapImage(new Uri(iconUri, UriKind.Absolute));
+        Icon = new BitmapImage(new Uri(windowIconUri, UriKind.Absolute));
+
+        StatusTitleText.Text = vietnameseEnabled
+            ? "Đang bật chế độ Tiếng Việt (V)"
+            : "Đang ở chế độ Tiếng Anh (E)";
         StatusSubtitleText.Text = vietnameseEnabled
-            ? $"Bộ gõ Tiếng Việt nhẹ, mượt, không độ trễ — Đang bật Tiếng Việt ({method})"
-            : "Bộ gõ Tiếng Việt nhẹ, mượt, không độ trễ — Chế độ Tiếng Anh (E)";
+            ? $"Kiểu gõ: {method} — Nhẹ, mượt, không độ trễ"
+            : "Tạm tắt biến đổi dấu Tiếng Việt";
     }
 
     private void RefreshMacroList()
@@ -273,10 +284,24 @@ public partial class DesktopSettingsWindow : Window
         return false;
     }
 
+    private static bool IsCurrentThreadForeignIme()
+    {
+        try
+        {
+            string iso = InputLanguageManager.Current.CurrentInputLanguage.TwoLetterISOLanguageName;
+            return iso is "ja" or "ko" or "zh";
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     private void OnSandboxPreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (IsBackgroundEngineRunning())
+        if (IsBackgroundEngineRunning() || IsCurrentThreadForeignIme())
         {
+            _sandboxTransformer.Reset();
             return;
         }
 
@@ -310,7 +335,7 @@ public partial class DesktopSettingsWindow : Window
 
     private void OnSandboxPreviewTextInput(object sender, TextCompositionEventArgs e)
     {
-        if (IsBackgroundEngineRunning() || string.IsNullOrEmpty(e.Text))
+        if (IsBackgroundEngineRunning() || IsCurrentThreadForeignIme() || string.IsNullOrEmpty(e.Text))
         {
             return;
         }

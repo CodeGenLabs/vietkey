@@ -116,7 +116,7 @@
             "covers": [
               "REQ-settings-1"
             ],
-            "line": 125,
+            "line": 129,
             "name": "SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu"
           }
         ],
@@ -292,7 +292,7 @@
     "tagged_tests": 25,
     "total_tests": 27
   },
-  "generated_from_commit": "ab414feb34fefbadd6e3dfdf9eb150fa55cb0caf",
+  "generated_from_commit": "6d27f09666a3521ec731291505ca36f3f7bfa09e",
   "generator": "forge sync derived",
   "tool": "forge"
 }

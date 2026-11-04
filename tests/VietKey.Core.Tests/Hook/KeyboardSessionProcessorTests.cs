@@ -101,8 +101,11 @@ public sealed class KeyboardSessionProcessorTests
             _ => "chrome.exe",
             _ => { });
 
-        var tray = new VietKey.Engine.Tray.TrayIconHost(processor.CurrentConfig);
+        using var tray = new VietKey.Engine.Tray.TrayIconHost(processor.CurrentConfig);
         processor.VietnameseModeChanged += enabled => tray.UpdateState(enabled, processor.CurrentConfig.InputMethod);
+
+        nint iconHandleV = tray.ActiveIconHandle;
+        Assert.NotEqual(0, iconHandleV);
 
         // Press Alt+Z -> flips from Vietnamese (true) to English (false)
         bool handled = processor.ProcessKeyDown(
@@ -118,6 +121,7 @@ public sealed class KeyboardSessionProcessorTests
         Assert.True(handled);
         Assert.False(processor.CurrentConfig.VietnameseEnabled);
         Assert.False(tray.IsVietnameseActive);
+        Assert.NotEqual(iconHandleV, tray.ActiveIconHandle);
         Assert.Contains("Tiếng Anh (E)", tray.GetTooltipText());
     }
 
@@ -125,7 +129,7 @@ public sealed class KeyboardSessionProcessorTests
     [Fact]
     public void SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu()
     {
-        var tray = new VietKey.Engine.Tray.TrayIconHost(AppConfig.Default);
+        using var tray = new VietKey.Engine.Tray.TrayIconHost(AppConfig.Default);
         bool toggleCalled = false;
         bool openSettingsCalled = false;
         bool contextMenuCalled = false;

@@ -24,11 +24,17 @@ public sealed class TrayIconHost : IDisposable
     private const uint NIF_ICON = 0x00000002;
     private const uint NIF_TIP = 0x00000004;
 
+    private const uint IMAGE_ICON = 1;
+    private const uint LR_LOADFROMFILE = 0x00000010;
+
     private nint _hwnd;
     private bool _iconAdded;
+    private nint _customIconV;
+    private nint _customIconE;
 
     public bool IsVietnameseActive { get; private set; }
     public InputMethod ActiveInputMethod { get; private set; }
+    public nint ActiveIconHandle => ResolveActiveIconHandle();
 
     public event Action? ToggleRequested;
     public event Action<InputMethod>? InputMethodChangeRequested;
@@ -56,10 +62,18 @@ public sealed class TrayIconHost : IDisposable
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern nint LoadIconW(nint hInstance, nint lpIconName);
 
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern nint LoadImageW(nint hInst, string lpszName, uint uType, int cxDesired, int cyDesired, uint fuLoad);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool DestroyIcon(nint hIcon);
+
     public TrayIconHost(AppConfig initialConfig)
     {
         IsVietnameseActive = initialConfig.VietnameseEnabled;
         ActiveInputMethod = initialConfig.InputMethod;
+        LoadCustomTrayIcons();
     }
 
     public void AttachToWindow(nint hwnd)
@@ -123,10 +137,57 @@ public sealed class TrayIconHost : IDisposable
     public string GetTooltipText() =>
         $"VietKey - {(IsVietnameseActive ? "Tiếng Việt (V)" : "Tiếng Anh (E)")} [{ActiveInputMethod}]";
 
+    private void LoadCustomTrayIcons()
+    {
+        string iconVPath = ResolveIconFilePath("icon-v.ico");
+        string iconEPath = ResolveIconFilePath("icon-e.ico");
+
+        if (File.Exists(iconVPath))
+        {
+            _customIconV = LoadImageW(0, iconVPath, IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
+        }
+
+        if (File.Exists(iconEPath))
+        {
+            _customIconE = LoadImageW(0, iconEPath, IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
+        }
+    }
+
+    private static string ResolveIconFilePath(string fileName)
+    {
+        string inAssets = Path.Combine(AppContext.BaseDirectory, "Assets", fileName);
+        if (File.Exists(inAssets))
+        {
+            return inAssets;
+        }
+
+        string direct = Path.Combine(AppContext.BaseDirectory, fileName);
+        if (File.Exists(direct))
+        {
+            return direct;
+        }
+
+        return inAssets;
+    }
+
+    private nint ResolveActiveIconHandle()
+    {
+        if (IsVietnameseActive && _customIconV != 0)
+        {
+            return _customIconV;
+        }
+
+        if (!IsVietnameseActive && _customIconE != 0)
+        {
+            return _customIconE;
+        }
+
+        nint fallbackId = IsVietnameseActive ? 32512 : 32516;
+        return LoadIconW(0, fallbackId);
+    }
+
     private NOTIFYICONDATAW CreateIconData()
     {
-        // IDI_APPLICATION (32512) for V, IDI_INFORMATION (32516) for E fallback system icons
-        nint iconId = IsVietnameseActive ? 32512 : 32516;
         return new NOTIFYICONDATAW
         {
             cbSize = (uint)Marshal.SizeOf<NOTIFYICONDATAW>(),
@@ -134,7 +195,7 @@ public sealed class TrayIconHost : IDisposable
             uID = 1,
             uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP,
             uCallbackMessage = WM_APP_TRAY,
-            hIcon = LoadIconW(0, iconId),
+            hIcon = ResolveActiveIconHandle(),
             szTip = GetTooltipText()
         };
     }
@@ -146,6 +207,18 @@ public sealed class TrayIconHost : IDisposable
             var data = CreateIconData();
             Shell_NotifyIconW(NIM_DELETE, ref data);
             _iconAdded = false;
+        }
+
+        if (_customIconV != 0)
+        {
+            DestroyIcon(_customIconV);
+            _customIconV = 0;
+        }
+
+        if (_customIconE != 0)
+        {
+            DestroyIcon(_customIconE);
+            _customIconE = 0;
         }
     }
 }

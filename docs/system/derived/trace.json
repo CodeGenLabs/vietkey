@@ -127,7 +127,9 @@
         "anchors": [],
         "back_references": [],
         "candidate": false,
-        "changes": [],
+        "changes": [
+          "0006-integrate-custom-logo-and-tray-icons"
+        ],
         "defined_in": "docs/system/specs/settings-and-tray/spec.md:7",
         "evidence": [],
         "governed_by": [],
@@ -313,7 +315,7 @@
       "tests_total": 27
     }
   },
-  "generated_from_commit": "5826ed8fdcebdc68440e534dbaffb1bb58c32b24",
+  "generated_from_commit": "6d27f09666a3521ec731291505ca36f3f7bfa09e",
   "generator": "forge sync derived",
   "tool": "forge"
 }

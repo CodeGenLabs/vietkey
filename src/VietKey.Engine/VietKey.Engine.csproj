@@ -7,8 +7,14 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
+    <ApplicationIcon>..\..\assets\icon-v.ico</ApplicationIcon>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\icon-v.ico" Link="Assets\icon-v.ico" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\assets\icon-e.ico" Link="Assets\icon-e.ico" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
 </Project>
