@@ -242,14 +242,14 @@
             "covers": [
               "REQ-typing-2"
             ],
-            "line": 130,
+            "line": 136,
             "name": "FreeMarkingAndDynamicToneRepositioning_WorksAcrossSyllable"
           },
           {
             "covers": [
               "REQ-typing-2"
             ],
-            "line": 155,
+            "line": 161,
             "name": "TonePlacement_ModernVsClassic_PlacesToneOnExpectedVowel"
           }
         ],
@@ -284,7 +284,7 @@
     "tagged_tests": 24,
     "total_tests": 26
   },
-  "generated_from_commit": "fc4b99ab55493bd85e69364b3fc829855de39d08",
+  "generated_from_commit": "b9edb0ad01b78868131cfb5c23157198b8b49cc0",
   "generator": "forge sync derived",
   "tool": "forge"
 }

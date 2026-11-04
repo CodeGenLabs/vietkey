@@ -116,11 +116,17 @@ public sealed class VietnameseTransformerTests
     [InlineData("oww", "ow", InputMethod.Telex)]
     [InlineData("ass", "as", InputMethod.Telex)]
     [InlineData("asss", "ass", InputMethod.Telex)]
+    [InlineData("tess", "tes", InputMethod.Telex)]
+    [InlineData("tesst", "test", InputMethod.Telex)]
+    [InlineData("tessts", "tests", InputMethod.Telex)]
+    [InlineData("goood", "good", InputMethod.Telex)]
+    [InlineData("towwn", "town", InputMethod.Telex)]
+    [InlineData("dddr", "ddr", InputMethod.Telex)]
     public void DoubleModifierKeyUndo_RevertsAndSuppressesFurtherTransformInSyllable(
         string input, string expected, InputMethod method)
     {
         var transformer = new VietnameseTransformer();
-        var cfg = AppConfig.Default with { InputMethod = method, SpellCheck = false };
+        var cfg = AppConfig.Default with { InputMethod = method, SpellCheck = true, AutoRestoreEnglish = true };
 
         string actual = TypeSequence(transformer, input, cfg);
         Assert.Equal(expected, actual);

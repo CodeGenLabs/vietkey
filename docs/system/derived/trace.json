@@ -203,7 +203,9 @@
         "anchors": [],
         "back_references": [],
         "candidate": false,
-        "changes": [],
+        "changes": [
+          "0003-fix-double-key-undo-auto-restore"
+        ],
         "defined_in": "docs/system/specs/typing-engine/spec.md:7",
         "evidence": [],
         "governed_by": [],
@@ -312,7 +314,7 @@
       "tests_total": 26
     }
   },
-  "generated_from_commit": "fc4b99ab55493bd85e69364b3fc829855de39d08",
+  "generated_from_commit": "b9edb0ad01b78868131cfb5c23157198b8b49cc0",
   "generator": "forge sync derived",
   "tool": "forge"
 }
