@@ -181,7 +181,7 @@
             "covers": [
               "REQ-typing-4"
             ],
-            "line": 54,
+            "line": 58,
             "name": "WordBoundary_WhenMacroDoesNotMatchOrDisabled_EmitsNormalText"
           }
         ],
@@ -201,7 +201,7 @@
             "covers": [
               "REQ-typing-3"
             ],
-            "line": 55,
+            "line": 58,
             "name": "ValidVietnameseSyllables_ArePreservedWhenSpellCheckEnabled"
           }
         ],
@@ -284,7 +284,7 @@
     "tagged_tests": 24,
     "total_tests": 26
   },
-  "generated_from_commit": "b9edb0ad01b78868131cfb5c23157198b8b49cc0",
+  "generated_from_commit": "8ff06931dba69d316d71e7b9988e1c51d3ada11d",
   "generator": "forge sync derived",
   "tool": "forge"
 }

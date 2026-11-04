@@ -37,6 +37,9 @@ public sealed class VietnameseSpellCheckerTests
     [InlineData("words ", "words ")]
     [InlineData("with ", "with ")]
     [InlineData("string ", "string ")]
+    [InlineData("add ", "add ")]
+    [InlineData("address ", "address ")]
+    [InlineData("ddram ", "ddram ")]
     public void AutoRestoreEnglishAndInvalidPhonotactics_RestoresRawKeys(string input, string expected)
     {
         var transformer = new VietnameseTransformer();
@@ -61,6 +64,14 @@ public sealed class VietnameseSpellCheckerTests
     [InlineData("quynhf ", "quỳnh ")]
     [InlineData("giuwowngf ", "giường ")]
     [InlineData("xoawns ", "xoắn ")]
+    [InlineData("ddc", "đc")]
+    [InlineData("ddc ", "đc ")]
+    [InlineData("dcd ", "đc ")]
+    [InlineData("ddk ", "đk ")]
+    [InlineData("ddt ", "đt ")]
+    [InlineData("ddh ", "đh ")]
+    [InlineData("ddv ", "đv ")]
+    [InlineData("dd ", "đ ")]
     public void ValidVietnameseSyllables_ArePreservedWhenSpellCheckEnabled(string input, string expected)
     {
         var transformer = new VietnameseTransformer();

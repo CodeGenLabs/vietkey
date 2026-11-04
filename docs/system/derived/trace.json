@@ -255,7 +255,9 @@
         "anchors": [],
         "back_references": [],
         "candidate": false,
-        "changes": [],
+        "changes": [
+          "0004-preserve-vietnamese-crossbar-d-shorthand"
+        ],
         "defined_in": "docs/system/specs/typing-engine/spec.md:41",
         "evidence": [],
         "governed_by": [],
@@ -312,7 +314,7 @@
       "tests_total": 26
     }
   },
-  "generated_from_commit": "70d29dac71f89a7d5720cb1a7f9e6527152d36bc",
+  "generated_from_commit": "8ff06931dba69d316d71e7b9988e1c51d3ada11d",
   "generator": "forge sync derived",
   "tool": "forge"
 }

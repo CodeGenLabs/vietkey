@@ -68,6 +68,10 @@ public static class VietnameseSpellChecker
             {
                 if (!isVowel)
                 {
+                    if (i > 0 && slot.CrossbarD)
+                    {
+                        return false;
+                    }
                     initialBuilder.Append(slot.CrossbarD ? 'đ' : lower);
                 }
                 else
@@ -108,6 +112,22 @@ public static class VietnameseSpellChecker
         string vowel = vowelBuilder.ToString();
         string final = finalBuilder.ToString();
 
+        if (vowel.Length == 0)
+        {
+            // Preserve Vietnamese consonant-only shorthand starting with 'đ' (e.g. "đ", "đc", "đk", "đt", "đh", "đv")
+            if (slots[0].CrossbarD && buffer.Tone == ToneMark.None)
+            {
+                return true;
+            }
+
+            if (!ValidInitials.Contains(initial))
+            {
+                return false;
+            }
+
+            return !isCompleteWord;
+        }
+
         if (!ValidInitials.Contains(initial))
         {
             return false;
@@ -116,11 +136,6 @@ public static class VietnameseSpellChecker
         if (!ValidFinals.Contains(final))
         {
             return false;
-        }
-
-        if (vowel.Length == 0)
-        {
-            return !isCompleteWord;
         }
 
         if (vowel.Length > 3 || !ValidVowelClusters.Contains(vowel))

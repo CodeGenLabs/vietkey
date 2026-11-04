@@ -36,11 +36,12 @@ public sealed class MacroTableTests
     public void WordBoundary_WhenMacroMatchesOnSpaceOrEnter_ExpandsTriggerText()
     {
         var transformer = new VietnameseTransformer();
-        var cfg = AppConfig.Default with { EnableMacros = true };
+        var cfg = AppConfig.Default with { EnableMacros = true, SpellCheck = true, AutoRestoreEnglish = true };
         var macros = new Dictionary<string, string>
         {
             ["vn"] = "Việt Nam",
-            ["hcm"] = "Thành phố Hồ Chí Minh"
+            ["hcm"] = "Thành phố Hồ Chí Minh",
+            ["đc"] = "được"
         };
 
         string actualSpace = TypeSequence(transformer, "vn ", cfg, macros);
@@ -48,6 +49,9 @@ public sealed class MacroTableTests
 
         string actualEnter = TypeSequence(transformer, "hcm\n", cfg, macros);
         Assert.Equal("Thành phố Hồ Chí Minh\n", actualEnter);
+
+        string actualDc = TypeSequence(transformer, "ddc ", cfg, macros);
+        Assert.Equal("được ", actualDc);
     }
 
     // @covers REQ-typing-4
