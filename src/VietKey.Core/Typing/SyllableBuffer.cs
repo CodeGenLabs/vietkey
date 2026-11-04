@@ -40,7 +40,34 @@ public sealed class SyllableBuffer
 
     public void AddRawKey(char key) => _rawKeys.Add(key);
 
+    public void RemoveLastRawKey()
+    {
+        if (_rawKeys.Count > 0)
+        {
+            _rawKeys.RemoveAt(_rawKeys.Count - 1);
+        }
+    }
+
     public void AddSlot(LetterSlot slot) => _slots.Add(slot);
+
+    public bool HasAnyDiacritic()
+    {
+        if (Tone != ToneMark.None)
+        {
+            return true;
+        }
+
+        for (int i = 0; i < _slots.Count; i++)
+        {
+            var s = _slots[i];
+            if (s.Hat != VowelHat.None || s.CrossbarD)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public string GetRawString() => new(_rawKeys.ToArray());
 }

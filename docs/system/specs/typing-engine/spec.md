@@ -5,7 +5,7 @@
 Pure, deterministic Vietnamese syllable composition engine supporting Telex and VNI input methods, free diacritic marking, tone placement styles, phonotactic spellcheck with automatic English raw-key restoration, and word-boundary macro expansion.
 
 ### Requirement: REQ-typing-1 - Telex and VNI syllable composition
-The system SHALL transform sequential ASCII keystrokes within an active syllable buffer into precomposed Unicode (NFC) Vietnamese characters according to the selected input method (`Telex` or `VNI`), and SHALL revert the transformation to the literal repeating character when the same modifier key is pressed twice consecutively.
+The system SHALL transform sequential ASCII keystrokes within an active syllable buffer into precomposed Unicode (NFC) Vietnamese characters according to the selected input method (`Telex` or `VNI`), and SHALL revert the transformation to the literal repeating character when the same modifier key is pressed twice consecutively without duplicating the undo escape keystroke when spellcheck auto-restore is active.
 
 #### Scenario: Telex vowel modification and tone mark
 - **WHEN** the input method is `Telex` and the user types the sequence `t`, `i`, `e`, `e`, `n`, `g`, `s`
@@ -15,9 +15,9 @@ The system SHALL transform sequential ASCII keystrokes within an active syllable
 - **WHEN** the input method is `VNI` and the user types the sequence `v`, `i`, `e`, `6`, `t`, `5`
 - **THEN** the syllable buffer produces `việt`
 
-#### Scenario: Double modifier key undo in Telex
-- **WHEN** the input method is `Telex` and the user types `a`, `a`, `a`
-- **THEN** `a` followed by `a` produces `â`, and the third `a` reverts the vowel to literal `aa` and disables further `â` transformation for that vowel within the current syllable
+#### Scenario: Double modifier key undo in Telex with spellcheck enabled
+- **WHEN** the input method is `Telex` with spellcheck auto-restore enabled and the user types `t`, `e`, `s`, `s`, `t` (or `a`, `a`, `a`)
+- **THEN** `t`, `e`, `s` produces `té`, the second `s` reverts `té` to literal `tes` (not `tess`), and appending `t` produces `test` (not `tesst`)
 
 #### Scenario: Double crossbar d undo in Telex and VNI
 - **WHEN** the user types `d`, `d`, `d` in `Telex` (or `d`, `9`, `9` in `VNI`)

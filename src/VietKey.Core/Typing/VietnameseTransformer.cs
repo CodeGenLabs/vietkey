@@ -51,6 +51,7 @@ public sealed class VietnameseTransformer
         string newDisplayed = RenderCurrentSyllable(config);
 
         if (config.SpellCheck && config.AutoRestoreEnglish &&
+            _buffer.HasAnyDiacritic() &&
             !string.Equals(newDisplayed, _buffer.GetRawString(), StringComparison.Ordinal) &&
             ShouldAutoRestoreOnKeystroke(config))
         {
@@ -82,11 +83,7 @@ public sealed class VietnameseTransformer
             var slotsList = (List<LetterSlot>)_buffer.Slots;
             slotsList.RemoveAt(slotsList.Count - 1);
         }
-        var rawList = (List<char>)_buffer.RawKeys;
-        if (rawList.Count > 0)
-        {
-            rawList.RemoveAt(rawList.Count - 1);
-        }
+        _buffer.RemoveLastRawKey();
 
         if (_buffer.Slots.Count == 0)
         {
@@ -125,6 +122,8 @@ public sealed class VietnameseTransformer
                     slot.CrossbarD = false;
                     slot.CrossbarSuppressed = true;
                     _buffer.AddSlot(new LetterSlot(ch) { CrossbarSuppressed = true });
+                    _buffer.RemoveLastRawKey();
+                    _buffer.CompositionSuppressed = true;
                     return true;
                 }
                 if (!slot.CrossbarSuppressed)
@@ -149,6 +148,7 @@ public sealed class VietnameseTransformer
                     slot.Hat = VowelHat.None;
                     slot.HatSuppressed = true;
                     _buffer.AddSlot(new LetterSlot(ch) { HatSuppressed = true });
+                    _buffer.RemoveLastRawKey();
                     return true;
                 }
                 if (!slot.HatSuppressed && slot.Hat == VowelHat.None)
@@ -211,6 +211,8 @@ public sealed class VietnameseTransformer
                     s.Hat = VowelHat.None;
                     s.HatSuppressed = true;
                     _buffer.AddSlot(new LetterSlot(rawW));
+                    _buffer.RemoveLastRawKey();
+                    _buffer.CompositionSuppressed = true;
                     return true;
                 }
                 break;
@@ -300,10 +302,12 @@ public sealed class VietnameseTransformer
 
         if (_buffer.Tone == requestedTone)
         {
-            // Double tone key undo: e.g. 'a' + 's' + 's' -> "as"
+            // Double tone key undo: e.g. 't' + 'e' + 's' + 's' -> "tes"
             _buffer.Tone = ToneMark.None;
             _buffer.SuppressedTone = requestedTone;
             _buffer.AddSlot(new LetterSlot(rawChar));
+            _buffer.RemoveLastRawKey();
+            _buffer.CompositionSuppressed = true;
             return true;
         }
 
@@ -329,6 +333,8 @@ public sealed class VietnameseTransformer
                     slot.CrossbarD = false;
                     slot.CrossbarSuppressed = true;
                     _buffer.AddSlot(new LetterSlot(ch));
+                    _buffer.RemoveLastRawKey();
+                    _buffer.CompositionSuppressed = true;
                     return true;
                 }
                 if (!slot.CrossbarSuppressed)
@@ -353,6 +359,8 @@ public sealed class VietnameseTransformer
                         slot.Hat = VowelHat.None;
                         slot.HatSuppressed = true;
                         _buffer.AddSlot(new LetterSlot(ch));
+                        _buffer.RemoveLastRawKey();
+                        _buffer.CompositionSuppressed = true;
                         return true;
                     }
                     if (!slot.HatSuppressed)
@@ -376,6 +384,8 @@ public sealed class VietnameseTransformer
                     slot.Hat = VowelHat.None;
                     slot.HatSuppressed = true;
                     _buffer.AddSlot(new LetterSlot(ch));
+                    _buffer.RemoveLastRawKey();
+                    _buffer.CompositionSuppressed = true;
                     return true;
                 }
                 if (!slot.HatSuppressed)
@@ -637,6 +647,7 @@ public sealed class VietnameseTransformer
         }
 
         if (config.SpellCheck && config.AutoRestoreEnglish &&
+            _buffer.HasAnyDiacritic() &&
             !string.Equals(currentDisplayed, raw, StringComparison.Ordinal) &&
             !VietnameseSpellChecker.IsValidSyllable(_buffer, isCompleteWord: true))
         {
