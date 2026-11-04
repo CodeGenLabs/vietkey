@@ -27,6 +27,13 @@ thresholds:
   # How many recent changes the orphan check looks back over.
   orphan_change_window: 20
 
+commands:
+  build: "dotnet build --no-restore --nologo"
+  typecheck: "none"
+  lint: "none"
+  test: "dotnet test --no-build --nologo"
+  ui: "none"
+
 # rules:
 #   # Project house rules surfaced to agents during `forge instructions <phase>`.
 #   spec:
