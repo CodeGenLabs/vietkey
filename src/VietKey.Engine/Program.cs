@@ -23,21 +23,25 @@ public static class Program
 
         var store = new ConfigStore();
         using var reloadCoordinator = new ConfigReloadCoordinator(store);
+        var peerArbitrator = new PeerImeArbitrator();
         var processor = new KeyboardSessionProcessor(
             reloadCoordinator.CurrentConfig,
             reloadCoordinator.CurrentMacros,
             NativeMethods.ResolveProcessImageName,
             batch => NativeMethods.DispatchBatch(batch),
-            NativeMethods.IsForeignImeActive);
+            NativeMethods.IsForeignImeActive,
+            peerArbitrator);
 
         using var tray = new TrayIconHost(reloadCoordinator.CurrentConfig);
         processor.VietnameseModeChanged += enabled =>
+        {
             tray.UpdateState(enabled, processor.CurrentConfig.InputMethod);
+            store.Save(processor.CurrentConfig);
+        };
 
         tray.ToggleRequested += () =>
         {
             processor.ToggleVietnameseMode(NativeMethods.GetForegroundWindow());
-            store.Save(processor.CurrentConfig);
         };
 
         tray.InputMethodChangeRequested += method =>

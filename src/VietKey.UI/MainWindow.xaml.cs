@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using VietKey.Core.Config;
 using VietKey.Core.Typing;
 using VietKey.UI.ViewModels;
@@ -58,6 +59,8 @@ public partial class DesktopSettingsWindow : Window
 {
     private readonly MainWindow _controller;
     private readonly string _engineExecutablePath;
+    private readonly ConfigStore _externalSyncStore = new();
+    private readonly DispatcherTimer _externalSyncTimer;
     private readonly VietnameseTransformer _sandboxTransformer = new();
     private bool _suppressEvents;
     private bool _savedOnClose;
@@ -69,6 +72,51 @@ public partial class DesktopSettingsWindow : Window
         InitializeComponent();
         LoadFromViewModel();
         WireEvents();
+
+        _externalSyncTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(200)
+        };
+        _externalSyncTimer.Tick += OnExternalSyncTick;
+        _externalSyncTimer.Start();
+    }
+
+    private void OnExternalSyncTick(object? sender, EventArgs e)
+    {
+        if (_suppressEvents)
+        {
+            return;
+        }
+
+        try
+        {
+            var diskConfig = _externalSyncStore.Load(out _);
+            if (diskConfig.VietnameseEnabled != _controller.ViewModel.Config.VietnameseEnabled ||
+                diskConfig.InputMethod != _controller.ViewModel.Config.InputMethod)
+            {
+                _suppressEvents = true;
+                try
+                {
+                    _controller.ViewModel.Config = _controller.ViewModel.Config with
+                    {
+                        VietnameseEnabled = diskConfig.VietnameseEnabled,
+                        InputMethod = diskConfig.InputMethod
+                    };
+                    VietnameseToggle.IsChecked = diskConfig.VietnameseEnabled;
+                    InputMethodCombo.SelectedIndex = diskConfig.InputMethod == InputMethod.Vni ? 1 : 0;
+                    UpdateHeaderBadge(diskConfig.VietnameseEnabled, diskConfig.InputMethod);
+                    FooterStatusText.Text = $"Đã chuyển sang {(diskConfig.VietnameseEnabled ? "Tiếng Việt (V)" : "Tiếng Anh (E)")}";
+                }
+                finally
+                {
+                    _suppressEvents = false;
+                }
+            }
+        }
+        catch
+        {
+            // Ignore transient file access contention during reload
+        }
     }
 
     private void LoadFromViewModel()
@@ -103,7 +151,6 @@ public partial class DesktopSettingsWindow : Window
         {
             VietnameseToggle.IsChecked = !(VietnameseToggle.IsChecked ?? true);
             SyncControlsToViewModel();
-            _controller.ViewModel.SaveAndSignalReload(_engineExecutablePath);
             FooterStatusText.Text = $"Đã chuyển sang {(VietnameseToggle.IsChecked == true ? "Tiếng Việt (V)" : "Tiếng Anh (E)")}";
         };
 
@@ -157,6 +204,7 @@ public partial class DesktopSettingsWindow : Window
                 MacroTriggerInput.Clear();
                 MacroExpansionInput.Clear();
                 RefreshMacroList();
+                _controller.ViewModel.SaveAndSignalReload(_engineExecutablePath);
                 FooterStatusText.Text = $"Đã cập nhật gõ tắt: {trigger.Trim()} -> {expansion}";
             }
             else
@@ -176,6 +224,7 @@ public partial class DesktopSettingsWindow : Window
                     if (_controller.ViewModel.RemoveMacro(key))
                     {
                         RefreshMacroList();
+                        _controller.ViewModel.SaveAndSignalReload(_engineExecutablePath);
                         FooterStatusText.Text = $"Đã xóa gõ tắt: {key}";
                     }
                 }
@@ -201,12 +250,12 @@ public partial class DesktopSettingsWindow : Window
         ApplyButton.Click += (_, _) =>
         {
             SyncControlsToViewModel();
-            _controller.ViewModel.SaveAndSignalReload(_engineExecutablePath);
             FooterStatusText.Text = $"Đã lưu và áp dụng cấu hình lúc {DateTime.Now:HH:mm:ss}";
         };
 
         SaveAndCloseButton.Click += (_, _) =>
         {
+            _externalSyncTimer.Stop();
             SyncControlsToViewModel();
             _savedOnClose = true;
             _controller.CloseAndFlush(_engineExecutablePath);
@@ -215,6 +264,7 @@ public partial class DesktopSettingsWindow : Window
 
         Closed += (_, _) =>
         {
+            _externalSyncTimer.Stop();
             if (!_savedOnClose)
             {
                 SyncControlsToViewModel();
@@ -243,6 +293,7 @@ public partial class DesktopSettingsWindow : Window
             startWithWindows: StartupToggle.IsChecked ?? false);
 
         UpdateHeaderBadge(vietnameseEnabled, method);
+        _controller.ViewModel.SaveAndSignalReload(_engineExecutablePath);
     }
 
     private void UpdateHeaderBadge(bool vietnameseEnabled, InputMethod method)
