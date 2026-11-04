@@ -1,0 +1,81 @@
+{
+  "base": "ac835f1da877bf24443631cda33d2e678b816a27",
+  "change": "0008-add-hide-dialog-on-startup-option",
+  "commit": "ac835f1da877bf24443631cda33d2e678b816a27",
+  "failing": [],
+  "gates": {
+    "build": {
+      "fix": "re-run without --no-run before syncing",
+      "reason": "commands were not run (--no-run)",
+      "status": "unavailable"
+    },
+    "claim_evidence": {
+      "enforced_claims": 0,
+      "failing": [],
+      "status": "pass"
+    },
+    "claim_touch": {
+      "status": "pass",
+      "unaccounted": []
+    },
+    "debt": {
+      "fix": "until the ledger exists, look for stubs and TODOs added by this change",
+      "reason": "DEBT.md is not built yet",
+      "status": "pending"
+    },
+    "derived_fresh": {
+      "commits_behind": 13,
+      "dirty": [],
+      "status": "pass"
+    },
+    "drift": {
+      "claims": [],
+      "open": [],
+      "reason": "every claim this change touches is either fresh or has a recorded verdict",
+      "status": "pass"
+    },
+    "lint": {
+      "reason": "`commands.lint: none` - this project has no lint step",
+      "status": "skipped"
+    },
+    "no_new_skips": {
+      "fix": "until the runner records per-test results, check the suite output for newly skipped tests",
+      "reason": "no baseline test run to compare against",
+      "status": "pending"
+    },
+    "requirement_cover": {
+      "discharged": 1,
+      "requirements": 1,
+      "status": "pass",
+      "undischarged": []
+    },
+    "tests": {
+      "fix": "re-run without --no-run before syncing",
+      "reason": "commands were not run (--no-run)",
+      "status": "unavailable"
+    },
+    "typecheck": {
+      "reason": "`commands.typecheck: none` - this project has no typecheck step",
+      "status": "skipped"
+    },
+    "ui": {
+      "reason": "`commands.ui: none` - this project has no ui step",
+      "status": "skipped"
+    }
+  },
+  "pending": [
+    "debt",
+    "no_new_skips"
+  ],
+  "skipped": [
+    "lint",
+    "typecheck",
+    "ui"
+  ],
+  "unproven": [
+    "build",
+    "tests"
+  ],
+  "verdict": "unproven",
+  "waived": []
+}

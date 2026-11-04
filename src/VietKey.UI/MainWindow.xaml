@@ -4,9 +4,9 @@
         Title="VietKey — Gõ tiếng Việt dễ dàng (Windows 11)"
         Icon="pack://application:,,,/Assets/icon-v.png"
         Width="700"
-        Height="790"
+        Height="810"
         MinWidth="600"
-        MinHeight="660"
+        MinHeight="680"
         WindowStartupLocation="CenterScreen"
         Background="#F3F4F8"
         FontFamily="Segoe UI Variable Display, Segoe UI"
@@ -164,7 +164,11 @@
                                   Margin="0,0,0,9"/>
 
                         <CheckBox x:Name="StartupToggle"
-                                  Content="Khởi động VietKey cùng Windows 11"
+                                  Content="Khởi động cùng Windows"
+                                  Margin="0,0,0,9"/>
+
+                        <CheckBox x:Name="HideDialogOnStartupToggle"
+                                  Content="Không hiển thị hộp thoại khi khởi động"
                                   Margin="0,0,0,2"/>
                     </StackPanel>
                 </Border>
