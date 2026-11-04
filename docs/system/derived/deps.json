@@ -1,0 +1,14 @@
+{
+  "$schema": "forge/derived/v1",
+  "data": {
+    "cycles": [],
+    "edges": {},
+    "files_with_imports": 0,
+    "reverse": {},
+    "tool": "forge",
+    "unresolved_imports": 0
+  },
+  "generated_from_commit": "e59bd9be3e707d99534416c01bbd683e63fe2c1c",
+  "generator": "forge sync derived",
+  "tool": "forge"
+}

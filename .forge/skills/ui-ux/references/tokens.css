@@ -1,0 +1,201 @@
+/**
+ * Semantic Design Tokens Reference Stylesheet (6-Axis Live Theme + OKLCH + Fluid Utopia Type)
+ * Domains: [RUI] Refactoring UI, [IMP] Craft & Polish, [EL] Every Layout, [UPM] Design-System Synthesis,
+ *          [WIG] Web Interface Audit, [UIS] Baseline UI Constraints, [WCAG] W3C DTCG / WCAG 2.2
+ *
+ * 6-Axis Root Theme Contract (TH-01..TH-10):
+ *   1. Primary Hue/Chroma: --primary-hue, --primary-chroma
+ *   2. Neutral Hue/Chroma: --neutral-hue, --neutral-chroma
+ *   3. Font Stacks:        --font-sans, --font-display, --font-mono
+ *   4. Icon System:        --icon-stroke (paired with stroke="currentColor")
+ *   5. Radius Scale:       --radius-scale (0 = sharp, 1 = default, 1.5 = rounded)
+ *   6. Polarity:           :root (light) vs [data-theme="dark"] + color-scheme
+ */
+
+:root {
+  color-scheme: light;
+
+  /* 6-Axis Master Controls [TH-02..TH-05] */
+  --primary-hue: 258;
+  --primary-chroma: 0.195;
+  --neutral-hue: 255;
+  --neutral-chroma: 0.014;
+  --radius-scale: 1;
+  --icon-stroke: 1.75;
+
+  /* Axis 3: Typography — Font Families [IMP:typography, FD, TH-04] */
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Fluid Type Scale — Utopia clamp(min, base + vw, max) [EL, IMP:typography, P-22] */
+  --text-xs: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
+  --text-sm: clamp(0.875rem, 0.84rem + 0.18vw, 0.9375rem);
+  --text-base: clamp(1rem, 0.96rem + 0.22vw, 1.0625rem);
+  --text-lg: clamp(1.125rem, 1.06rem + 0.32vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 1.32rem + 0.9vw, 1.875rem);
+  --text-3xl: clamp(1.875rem, 1.6rem + 1.38vw, 2.5rem);
+  --text-4xl: clamp(2.25rem, 1.85rem + 2vw, 3.25rem);
+
+  /* Line Heights & Measure [P-24..P-26, EL] */
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.65;
+  --measure-narrow: 45ch;
+  --measure: 65ch;
+  --measure-wide: 75ch;
+
+  /* Non-Linear Spacing Scale (4px / 8px base rhythm) [RUI, IMP:spatial, P-11] */
+  --space-0: 0rem;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+
+  /* Axis 2: OKLCH Hue-Tinted Neutral Scale (Parameterized by --neutral-hue) [RUI, IMP:color, P-45, TH-02] */
+  --neutral-50: oklch(0.985 calc(var(--neutral-chroma) * 0.3) var(--neutral-hue));
+  --neutral-100: oklch(0.962 calc(var(--neutral-chroma) * 0.45) var(--neutral-hue));
+  --neutral-200: oklch(0.922 calc(var(--neutral-chroma) * 0.65) var(--neutral-hue));
+  --neutral-300: oklch(0.865 calc(var(--neutral-chroma) * 0.85) var(--neutral-hue));
+  --neutral-400: oklch(0.705 var(--neutral-chroma) var(--neutral-hue));
+  --neutral-500: oklch(0.552 var(--neutral-chroma) var(--neutral-hue));
+  --neutral-600: oklch(0.442 var(--neutral-chroma) var(--neutral-hue));
+  --neutral-700: oklch(0.365 var(--neutral-chroma) var(--neutral-hue));
+  --neutral-800: oklch(0.268 calc(var(--neutral-chroma) * 0.9) var(--neutral-hue));
+  --neutral-900: oklch(0.202 calc(var(--neutral-chroma) * 0.8) var(--neutral-hue));
+  --neutral-950: oklch(0.145 calc(var(--neutral-chroma) * 0.65) var(--neutral-hue));
+
+  /* Axis 1: OKLCH Brand Primary Scale (Parameterized by --primary-hue) [RUI, IMP:color, P-42, TH-02] */
+  --primary-50: oklch(0.972 calc(var(--primary-chroma) * 0.08) var(--primary-hue));
+  --primary-100: oklch(0.935 calc(var(--primary-chroma) * 0.18) var(--primary-hue));
+  --primary-200: oklch(0.875 calc(var(--primary-chroma) * 0.36) var(--primary-hue));
+  --primary-300: oklch(0.785 calc(var(--primary-chroma) * 0.62) var(--primary-hue));
+  --primary-400: oklch(0.675 calc(var(--primary-chroma) * 0.86) var(--primary-hue));
+  --primary-500: oklch(0.575 var(--primary-chroma) var(--primary-hue));
+  --primary-600: oklch(0.505 var(--primary-chroma) var(--primary-hue));
+  --primary-700: oklch(0.435 calc(var(--primary-chroma) * 0.86) var(--primary-hue));
+  --primary-800: oklch(0.365 calc(var(--primary-chroma) * 0.68) var(--primary-hue));
+  --primary-900: oklch(0.295 calc(var(--primary-chroma) * 0.48) var(--primary-hue));
+
+  /* Semantic Surface & Foreground Roles (60-30-10 Rule) [RUI, IMP:color, P-40, WCAG] */
+  --color-bg: var(--neutral-50);
+  --color-surface: oklch(1 0 0);
+  --color-surface-raised: oklch(1 0 0);
+  --color-surface-sunken: var(--neutral-100);
+
+  --color-fg: var(--neutral-900);
+  --color-fg-secondary: var(--neutral-700);
+  --color-fg-muted: var(--neutral-600); /* >= 4.5:1 on --color-bg and --color-surface */
+
+  --color-primary: var(--primary-600);
+  --color-primary-hover: var(--primary-700);
+  --color-on-primary: oklch(0.99 0.003 var(--primary-hue));
+
+  --color-border-subtle: var(--neutral-200);
+  --color-border-strong: var(--neutral-300);
+  --color-focus-ring: var(--primary-500);
+
+  /* Semantic Status Tokens (Hue-separated for colorblind safety) [UPM, IMP:color, P-52] */
+  --color-success: oklch(0.52 0.155 152);
+  --color-success-bg: oklch(0.96 0.032 152);
+  --color-warning: oklch(0.58 0.155 72);
+  --color-warning-bg: oklch(0.965 0.038 72);
+  --color-danger: oklch(0.53 0.195 25);
+  --color-danger-bg: oklch(0.962 0.032 25);
+  --color-info: oklch(0.53 0.165 245);
+  --color-info-bg: oklch(0.962 0.032 245);
+
+  /* Axis 5: Radii — Parameterized by --radius-scale & Concentric Rule [RUI, UIS, P-66, TH-03] */
+  --radius-xs: calc(0.25rem * var(--radius-scale, 1));  /* 4px at scale 1 */
+  --radius-sm: calc(0.375rem * var(--radius-scale, 1)); /* 6px at scale 1 */
+  --radius-md: calc(0.5rem * var(--radius-scale, 1));   /* 8px at scale 1 */
+  --radius-lg: calc(0.75rem * var(--radius-scale, 1));  /* 12px at scale 1 */
+  --radius-xl: calc(1rem * var(--radius-scale, 1));     /* 16px at scale 1 */
+  --radius-full: 9999px;
+
+  /* Elevation — Two-part ambient + direct shadows [RUI, P-62] */
+  --shadow-xs: 0 1px 2px oklch(0.2 0.01 var(--neutral-hue) / 0.05);
+  --shadow-sm: 0 1px 3px oklch(0.2 0.01 var(--neutral-hue) / 0.08), 0 1px 2px oklch(0.2 0.01 var(--neutral-hue) / 0.04);
+  --shadow-md: 0 4px 8px -2px oklch(0.2 0.01 var(--neutral-hue) / 0.08), 0 2px 4px -2px oklch(0.2 0.01 var(--neutral-hue) / 0.05);
+  --shadow-lg: 0 12px 24px -4px oklch(0.2 0.01 var(--neutral-hue) / 0.10), 0 4px 8px -2px oklch(0.2 0.01 var(--neutral-hue) / 0.05);
+
+  /* Motion — Exponential Easing & Bounded Durations [IMP:motion, UIS, WIG, P-95..P-98] */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
+  --duration-slow: 320ms;
+
+  /* Z-Index Scale (5 semantic tiers) [RUI, UIS, P-74] */
+  --z-base: 0;
+  --z-sticky: 10;
+  --z-dropdown: 20;
+  --z-overlay: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+}
+
+/* Axis 6: Dark Mode — Surface elevation via lightness steps, desaturated accents [RUI, IMP:color, P-54..P-57, TH-06] */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg: oklch(0.145 calc(var(--neutral-chroma) * 0.65) var(--neutral-hue));
+  --color-surface: oklch(0.188 calc(var(--neutral-chroma) * 0.8) var(--neutral-hue));
+  --color-surface-raised: oklch(0.232 calc(var(--neutral-chroma) * 0.9) var(--neutral-hue));
+  --color-surface-sunken: oklch(0.122 calc(var(--neutral-chroma) * 0.55) var(--neutral-hue));
+
+  --color-fg: oklch(0.955 calc(var(--neutral-chroma) * 0.35) var(--neutral-hue));
+  --color-fg-secondary: oklch(0.825 calc(var(--neutral-chroma) * 0.7) var(--neutral-hue));
+  --color-fg-muted: oklch(0.685 var(--neutral-chroma) var(--neutral-hue));
+
+  --color-primary: oklch(0.685 calc(var(--primary-chroma) * 0.83) var(--primary-hue));
+  --color-primary-hover: oklch(0.745 calc(var(--primary-chroma) * 0.76) var(--primary-hue));
+  --color-on-primary: oklch(0.145 calc(var(--neutral-chroma) * 0.65) var(--neutral-hue));
+
+  --color-border-subtle: oklch(0.275 calc(var(--neutral-chroma) * 0.9) var(--neutral-hue));
+  --color-border-strong: oklch(0.365 var(--neutral-chroma) var(--neutral-hue));
+  --color-focus-ring: oklch(0.725 calc(var(--primary-chroma) * 0.8) var(--primary-hue));
+}
+
+/* Global Typography, Form Control Inheritance & Icon Stroke Binding [TH-04, TH-05] */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+svg {
+  stroke-width: var(--icon-stroke, 1.75);
+}
+
+/* Reduced Motion Override [WCAG 2.3.3, IMP:motion, WIG, AN-01] */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

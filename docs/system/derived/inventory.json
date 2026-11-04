@@ -1,0 +1,31 @@
+{
+  "$schema": "forge/derived/v1",
+  "data": {
+    "by_language": {
+      "css": {
+        "files": 2,
+        "lines": 448
+      },
+      "markdown": {
+        "files": 27,
+        "lines": 3555
+      },
+      "typescript": {
+        "files": 1,
+        "lines": 4773
+      },
+      "yaml": {
+        "files": 3,
+        "lines": 233
+      }
+    },
+    "entry_points": [],
+    "files_considered": 33,
+    "files_tracked": 33,
+    "stack": {},
+    "test_files": []
+  },
+  "generated_from_commit": "e59bd9be3e707d99534416c01bbd683e63fe2c1c",
+  "generator": "forge sync derived",
+  "tool": "forge"
+}

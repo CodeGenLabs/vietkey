@@ -1,0 +1,33 @@
+# forge configuration. Every key has a default; delete the file to use them all.
+version: 1
+
+# Pinned kernel version so this repository can detect version skew (Q11).
+kernel_version: "0.3.0"
+
+# Workspace isolation: protect main/master by refusing `forge change new` without --branch or --allow-main.
+protect_main: true
+
+derive:
+  # Paths the derived tier does not describe, on top of the built-in vendor and
+  # build exclusions. Use for code this project does not own.
+  exclude: []
+  # Paths whose ID-looking strings are data rather than declarations - test
+  # fixtures, mostly. These still count in the inventory; only the `@covers`
+  # and `forge:<ID>` harvest skips them.
+  # Note: Excluding a test directory means @covers tags in those tests will
+  # not be harvested, so requirement and invariant coverage cannot be satisfied.
+  exclude_id_scan: []
+
+budgets:
+  # The always-loaded set: OVERVIEW.md plus the mandatory claim files. Lower it
+  # if you like; raising it is not a fix for being over it.
+  always_loaded_lines: 400
+
+thresholds:
+  # How many recent changes the orphan check looks back over.
+  orphan_change_window: 20
+
+# rules:
+#   # Project house rules surfaced to agents during `forge instructions <phase>`.
+#   spec:
+#     - "money is integer minor units"
