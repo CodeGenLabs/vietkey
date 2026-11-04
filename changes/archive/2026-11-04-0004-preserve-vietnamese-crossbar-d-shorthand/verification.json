@@ -1,0 +1,80 @@
+{
+  "base": "bc0a1919e5f720a012340f061d53931daee38aee",
+  "change": "0004-preserve-vietnamese-crossbar-d-shorthand",
+  "commit": "8ff06931dba69d316d71e7b9988e1c51d3ada11d",
+  "failing": [],
+  "gates": {
+    "build": {
+      "cmd": "dotnet build --no-restore --nologo",
+      "duration_ms": 32409,
+      "exit": 0,
+      "status": "pass"
+    },
+    "claim_evidence": {
+      "enforced_claims": 0,
+      "failing": [],
+      "status": "pass"
+    },
+    "claim_touch": {
+      "status": "pass",
+      "unaccounted": []
+    },
+    "debt": {
+      "fix": "until the ledger exists, look for stubs and TODOs added by this change",
+      "reason": "DEBT.md is not built yet",
+      "status": "pending"
+    },
+    "derived_fresh": {
+      "commits_behind": 6,
+      "dirty": [],
+      "status": "pass"
+    },
+    "drift": {
+      "claims": [],
+      "open": [],
+      "reason": "every claim this change touches is either fresh or has a recorded verdict",
+      "status": "pass"
+    },
+    "lint": {
+      "reason": "`commands.lint: none` - this project has no lint step",
+      "status": "skipped"
+    },
+    "no_new_skips": {
+      "fix": "until the runner records per-test results, check the suite output for newly skipped tests",
+      "reason": "no baseline test run to compare against",
+      "status": "pending"
+    },
+    "requirement_cover": {
+      "discharged": 1,
+      "requirements": 1,
+      "status": "pass",
+      "undischarged": []
+    },
+    "tests": {
+      "cmd": "dotnet test --no-build --nologo",
+      "duration_ms": 15451,
+      "exit": 0,
+      "status": "pass"
+    },
+    "typecheck": {
+      "reason": "`commands.typecheck: none` - this project has no typecheck step",
+      "status": "skipped"
+    },
+    "ui": {
+      "reason": "`commands.ui: none` - this project has no ui step",
+      "status": "skipped"
+    }
+  },
+  "pending": [
+    "debt",
+    "no_new_skips"
+  ],
+  "skipped": [
+    "lint",
+    "typecheck",
+    "ui"
+  ],
+  "unproven": [],
+  "verdict": "pass",
+  "waived": []
+}

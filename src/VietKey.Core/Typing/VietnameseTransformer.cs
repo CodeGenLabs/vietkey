@@ -53,7 +53,7 @@ public sealed class VietnameseTransformer
         if (config.SpellCheck && config.AutoRestoreEnglish &&
             _buffer.HasAnyDiacritic() &&
             !string.Equals(newDisplayed, _buffer.GetRawString(), StringComparison.Ordinal) &&
-            ShouldAutoRestoreOnKeystroke(config))
+            ShouldAutoRestoreOnKeystroke(config, newDisplayed, macros))
         {
             newDisplayed = _buffer.GetRawString();
             _buffer.CompositionSuppressed = true;
@@ -621,8 +621,24 @@ public sealed class VietnameseTransformer
         return vowelIndices[1];
     }
 
-    private bool ShouldAutoRestoreOnKeystroke(AppConfig config)
+    private bool ShouldAutoRestoreOnKeystroke(
+        AppConfig config,
+        string newDisplayed,
+        IReadOnlyDictionary<string, string>? macros)
     {
+        if (config.EnableMacros && macros is not null && macros.Count > 0)
+        {
+            string raw = _buffer.GetRawString();
+            foreach (string trigger in macros.Keys)
+            {
+                if (trigger.StartsWith(newDisplayed, StringComparison.OrdinalIgnoreCase) ||
+                    trigger.StartsWith(raw, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+        }
+
         if (!VietnameseSpellChecker.IsValidSyllable(_buffer, isCompleteWord: false))
         {
             return true;
