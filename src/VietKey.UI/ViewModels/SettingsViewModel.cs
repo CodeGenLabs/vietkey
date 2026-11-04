@@ -1,0 +1,103 @@
+using Microsoft.Win32;
+using VietKey.Core.Config;
+
+namespace VietKey.UI.ViewModels;
+
+public sealed class SettingsViewModel
+{
+    public const string RunRegistryKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
+    public const string RunRegistryValueName = "VietKey";
+
+    private readonly ConfigStore _store;
+    private readonly string _reloadEventName;
+    private readonly Action<bool, string>? _startupRegistrar;
+
+    public AppConfig Config { get; set; }
+    public Dictionary<string, string> Macros { get; }
+    public bool WasResetToDefault { get; }
+
+    public SettingsViewModel(
+        ConfigStore store,
+        string reloadEventName = ConfigReloadCoordinator.DefaultEventName,
+        Action<bool, string>? startupRegistrar = null)
+    {
+        _store = store;
+        _reloadEventName = reloadEventName;
+        _startupRegistrar = startupRegistrar;
+        Config = _store.Load(out bool wasReset);
+        WasResetToDefault = wasReset;
+        Macros = _store.LoadMacros();
+    }
+
+    public bool TryAddOrUpdateMacro(string trigger, string expansion)
+    {
+        if (string.IsNullOrWhiteSpace(trigger) || string.IsNullOrEmpty(expansion))
+        {
+            return false;
+        }
+
+        string trimmed = trigger.Trim();
+        foreach (char c in trimmed)
+        {
+            if (char.IsWhiteSpace(c))
+            {
+                return false;
+            }
+        }
+
+        Macros[trimmed] = expansion;
+        return true;
+    }
+
+    public bool RemoveMacro(string trigger)
+    {
+        if (string.IsNullOrWhiteSpace(trigger))
+        {
+            return false;
+        }
+        return Macros.Remove(trigger.Trim());
+    }
+
+    public void SaveAndSignalReload(string engineExecutablePath = "VietKey.Engine.exe")
+    {
+        _store.Save(Config);
+        _store.SaveMacros(Macros);
+
+        if (_startupRegistrar is not null)
+        {
+            _startupRegistrar(Config.StartWithWindows, engineExecutablePath);
+        }
+        else if (OperatingSystem.IsWindows())
+        {
+            UpdateWindowsStartupRegistry(Config.StartWithWindows, engineExecutablePath);
+        }
+
+        ConfigReloadCoordinator.SignalReload(_reloadEventName);
+    }
+
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    public static void UpdateWindowsStartupRegistry(bool enable, string engineExecutablePath)
+    {
+        try
+        {
+            using RegistryKey? key = Registry.CurrentUser.OpenSubKey(RunRegistryKeyPath, writable: true);
+            if (key is null)
+            {
+                return;
+            }
+
+            if (enable)
+            {
+                key.SetValue(RunRegistryValueName, $"\"{engineExecutablePath}\"");
+            }
+            else
+            {
+                key.DeleteValue(RunRegistryValueName, throwOnMissingValue: false);
+            }
+        }
+        catch
+        {
+            // Ignore registry permission errors in restricted environments
+        }
+    }
+}

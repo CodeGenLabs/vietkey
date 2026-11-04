@@ -2,30 +2,49 @@
   "$schema": "forge/derived/v1",
   "data": {
     "by_language": {
+      "csharp": {
+        "files": 33,
+        "lines": 3137
+      },
       "css": {
         "files": 2,
         "lines": 448
       },
       "markdown": {
-        "files": 27,
-        "lines": 3555
+        "files": 40,
+        "lines": 4141
+      },
+      "other": {
+        "files": 7,
+        "lines": 125
       },
       "typescript": {
         "files": 1,
         "lines": 4773
       },
       "yaml": {
-        "files": 3,
-        "lines": 233
+        "files": 4,
+        "lines": 244
       }
     },
     "entry_points": [],
-    "files_considered": 33,
-    "files_tracked": 33,
+    "files_considered": 87,
+    "files_tracked": 87,
     "stack": {},
-    "test_files": []
+    "test_files": [
+      "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs",
+      "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs",
+      "tests/VietKey.Core.Tests/Injection/AppCompatibilityDetectorTests.cs",
+      "tests/VietKey.Core.Tests/Injection/InputBatchBuilderTests.cs",
+      "tests/VietKey.Core.Tests/Injection/SmartSwitchTrackerTests.cs",
+      "tests/VietKey.Core.Tests/Typing/MacroTableTests.cs",
+      "tests/VietKey.Core.Tests/Typing/VietnameseSpellCheckerTests.cs",
+      "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs",
+      "tests/VietKey.Core.Tests/UI/SettingsViewModelTests.cs",
+      "tests/VietKey.Core.Tests/VietKey.Core.Tests.csproj"
+    ]
   },
-  "generated_from_commit": "e59bd9be3e707d99534416c01bbd683e63fe2c1c",
+  "generated_from_commit": "6a729ef3df968234b3c482e48e0d0bd6528055ff",
   "generator": "forge sync derived",
   "tool": "forge"
 }
