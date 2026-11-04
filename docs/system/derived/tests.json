@@ -16,6 +16,7 @@
         "tests/VietKey.Core.Tests/Injection/SmartSwitchTrackerTests.cs::OnForegroundChanged_RestoresRememberedLanguagePerExecutable_AndClearsBuffer"
       ],
       "REQ-settings-1": [
+        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndInterveningKeys",
         "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance",
         "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu"
       ],
@@ -117,6 +118,13 @@
               "REQ-settings-1"
             ],
             "line": 129,
+            "name": "CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndInterveningKeys"
+          },
+          {
+            "covers": [
+              "REQ-settings-1"
+            ],
+            "line": 193,
             "name": "SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu"
           }
         ],
@@ -289,10 +297,10 @@
         "untagged": 1
       }
     },
-    "tagged_tests": 25,
-    "total_tests": 27
+    "tagged_tests": 26,
+    "total_tests": 28
   },
-  "generated_from_commit": "6d27f09666a3521ec731291505ca36f3f7bfa09e",
+  "generated_from_commit": "3d44e1477e026e4c55451f255428ab767ec7e160",
   "generator": "forge sync derived",
   "tool": "forge"
 }

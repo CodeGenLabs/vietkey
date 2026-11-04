@@ -6,15 +6,24 @@ namespace VietKey.Engine.Hook;
 
 public sealed class KeyboardSessionProcessor
 {
+    public const ushort VkNeutralChordBreaker = 0xFF;
+
     private readonly VietnameseTransformer _transformer = new();
     private readonly AppCompatibilityDetector _appDetector;
     private readonly SmartSwitchTracker _smartSwitch = new();
     private readonly Action<SimulatedKeyEvent[]> _batchDispatcher;
     private readonly Func<nint, bool>? _foreignImeChecker;
+    private readonly PeerImeArbitrator? _peerArbitrator;
+
     private AppConfig _config;
     private IReadOnlyDictionary<string, string> _macros;
+    private bool _shiftPressed;
+    private bool _ctrlPressed;
+    private bool _ctrlShiftChordArmed;
+    private bool _otherKeyPressedDuringModifier;
 
     public AppConfig CurrentConfig => _config;
+    public PeerImeArbitrator? PeerArbitrator => _peerArbitrator;
     public event Action<bool>? VietnameseModeChanged;
 
     public KeyboardSessionProcessor(
@@ -22,13 +31,15 @@ public sealed class KeyboardSessionProcessor
         IReadOnlyDictionary<string, string> initialMacros,
         Func<nint, string> processNameResolver,
         Action<SimulatedKeyEvent[]> batchDispatcher,
-        Func<nint, bool>? foreignImeChecker = null)
+        Func<nint, bool>? foreignImeChecker = null,
+        PeerImeArbitrator? peerArbitrator = null)
     {
         _config = initialConfig;
         _macros = initialMacros;
         _appDetector = new AppCompatibilityDetector(processNameResolver);
         _batchDispatcher = batchDispatcher;
         _foreignImeChecker = foreignImeChecker;
+        _peerArbitrator = peerArbitrator;
     }
 
     public void UpdateConfig(AppConfig config, IReadOnlyDictionary<string, string> macros)
@@ -48,6 +59,11 @@ public sealed class KeyboardSessionProcessor
         VietnameseModeChanged?.Invoke(nextMode);
     }
 
+    public static bool IsShiftVirtualKey(int vk) => vk is 0x10 or 0xA0 or 0xA1;
+    public static bool IsCtrlVirtualKey(int vk) => vk is 0x11 or 0xA2 or 0xA3;
+    public static bool IsAltVirtualKey(int vk) => vk is 0x12 or 0xA4 or 0xA5;
+    public static bool IsWinVirtualKey(int vk) => vk is 0x5B or 0x5C;
+
     public bool ProcessKeyDown(
         int virtualKey,
         uint llkhfFlags,
@@ -63,9 +79,43 @@ public sealed class KeyboardSessionProcessor
             return false;
         }
 
-        // Ignore standalone modifier key presses
-        if (virtualKey is 0x10 or 0x11 or 0x12 or 0xA0 or 0xA1 or 0xA2 or 0xA3 or 0xA4 or 0xA5 or 0x5B or 0x5C)
+        if (IsShiftVirtualKey(virtualKey))
         {
+            _shiftPressed = true;
+            if ((ctrlDown || _ctrlPressed) && !altDown && !winDown && !_otherKeyPressedDuringModifier)
+            {
+                _ctrlShiftChordArmed = true;
+            }
+            return false;
+        }
+
+        if (IsCtrlVirtualKey(virtualKey))
+        {
+            _ctrlPressed = true;
+            if ((shiftDown || _shiftPressed) && !altDown && !winDown && !_otherKeyPressedDuringModifier)
+            {
+                _ctrlShiftChordArmed = true;
+            }
+            return false;
+        }
+
+        if (IsAltVirtualKey(virtualKey) || IsWinVirtualKey(virtualKey))
+        {
+            _ctrlShiftChordArmed = false;
+            _otherKeyPressedDuringModifier = true;
+            return false;
+        }
+
+        // Any non-modifier key cancels an armed Ctrl+Shift toggle chord
+        _ctrlShiftChordArmed = false;
+        if (shiftDown || ctrlDown || _shiftPressed || _ctrlPressed)
+        {
+            _otherKeyPressedDuringModifier = true;
+        }
+
+        if (_peerArbitrator is not null && _peerArbitrator.Evaluate(bypassCache: false).ShouldYieldToOlderPeer)
+        {
+            _transformer.Reset();
             return false;
         }
 
@@ -89,6 +139,11 @@ public sealed class KeyboardSessionProcessor
         // Check Alt+Z global toggle hotkey
         if (_config.ToggleHotkey == ToggleHotkey.AltZ && altDown && !ctrlDown && !winDown && virtualKey == 'Z')
         {
+            if (_peerArbitrator is not null && _peerArbitrator.Evaluate(bypassCache: true).ShouldYieldToOlderPeer)
+            {
+                return false;
+            }
+
             ToggleVietnameseMode(foregroundHwnd);
             return true;
         }
@@ -132,6 +187,73 @@ public sealed class KeyboardSessionProcessor
 
         var batch = InputBatchBuilder.BuildBatch(transformResult, appProfile, _config.BrowserAutocompleteFix);
         _batchDispatcher(batch);
+        return true;
+    }
+
+    public bool ProcessKeyUp(
+        int virtualKey,
+        uint llkhfFlags,
+        bool shiftDown,
+        bool ctrlDown,
+        bool altDown,
+        bool winDown,
+        nint foregroundHwnd)
+    {
+        if (InputBatchBuilder.IsSyntheticInjected(llkhfFlags))
+        {
+            return false;
+        }
+
+        bool isShift = IsShiftVirtualKey(virtualKey);
+        bool isCtrl = IsCtrlVirtualKey(virtualKey);
+        if (!isShift && !isCtrl)
+        {
+            return false;
+        }
+
+        if (isShift)
+        {
+            _shiftPressed = false;
+        }
+
+        if (isCtrl)
+        {
+            _ctrlPressed = false;
+        }
+
+        bool wasArmed = _ctrlShiftChordArmed;
+        _ctrlShiftChordArmed = false;
+
+        if (!_shiftPressed && !_ctrlPressed && !shiftDown && !ctrlDown)
+        {
+            _otherKeyPressedDuringModifier = false;
+        }
+
+        if (!wasArmed || _config.ToggleHotkey != ToggleHotkey.CtrlShift || altDown || winDown)
+        {
+            return false;
+        }
+
+        if (_peerArbitrator is not null)
+        {
+            var decision = _peerArbitrator.Evaluate(bypassCache: true);
+            if (decision.ShouldYieldToOlderPeer)
+            {
+                return false;
+            }
+
+            if (decision.HasNewerPeer)
+            {
+                // Disarm downstream peer IME's Ctrl+Shift chord so only VietKey toggles
+                _batchDispatcher(
+                [
+                    new SimulatedKeyEvent(VkNeutralChordBreaker, 0, IsUnicode: false, IsKeyUp: false),
+                    new SimulatedKeyEvent(VkNeutralChordBreaker, 0, IsUnicode: false, IsKeyUp: true)
+                ]);
+            }
+        }
+
+        ToggleVietnameseMode(foregroundHwnd);
         return true;
     }
 

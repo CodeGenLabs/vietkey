@@ -127,6 +127,70 @@ public sealed class KeyboardSessionProcessorTests
 
     // @covers REQ-settings-1
     [Fact]
+    public void CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndInterveningKeys()
+    {
+        var vietKeyStartUtc = new DateTime(2026, 11, 4, 8, 0, 0, DateTimeKind.Utc);
+        var activePeers = new List<PeerImeProcessInfo>
+        {
+            // Case 1: EVKey was opened BEFORE VietKey (07:55 UTC < 08:00 UTC)
+            new(ProcessId: 1001, ProcessName: "EVKey64", StartTimeUtc: vietKeyStartUtc.AddMinutes(-5))
+        };
+
+        var dispatchedBatches = new List<SimulatedKeyEvent[]>();
+        var arbitrator = new PeerImeArbitrator(vietKeyStartUtc, () => activePeers);
+        var processor = new KeyboardSessionProcessor(
+            AppConfig.Default with { VietnameseEnabled = true, ToggleHotkey = ToggleHotkey.CtrlShift },
+            new Dictionary<string, string>(),
+            _ => "chrome.exe",
+            batch => dispatchedBatches.Add(batch),
+            peerArbitrator: arbitrator);
+
+        // 1. While older EVKey is running, VietKey yields Ctrl+Shift to EVKey
+        processor.ProcessKeyDown(0xA2, 0, false, false, false, false, false, 10); // VK_LCONTROL down
+        processor.ProcessKeyDown(0xA0, 0, false, false, true, false, false, 10);  // VK_LSHIFT down
+        bool toggledWhileOlderEvKeyRunning = processor.ProcessKeyUp(0xA0, 0, false, true, false, false, 10);
+        processor.ProcessKeyUp(0xA2, 0, false, false, false, false, 10);
+        Assert.False(toggledWhileOlderEvKeyRunning);
+        Assert.True(processor.CurrentConfig.VietnameseEnabled);
+
+        // 2. Older EVKey closes -> VietKey immediately takes over Ctrl+Shift without restart
+        activePeers.Clear();
+        processor.ProcessKeyDown(0xA2, 0, false, false, false, false, false, 10); // VK_LCONTROL down
+        processor.ProcessKeyDown(0xA0, 0, false, false, true, false, false, 10);  // VK_LSHIFT down
+        bool toggledAfterEvKeyClosed = processor.ProcessKeyUp(0xA0, 0, false, true, false, false, 10);
+        processor.ProcessKeyUp(0xA2, 0, false, false, false, false, 10);
+        Assert.True(toggledAfterEvKeyClosed);
+        Assert.False(processor.CurrentConfig.VietnameseEnabled);
+
+        // 3. Pressing Ctrl+Shift+T (with intervening key 'T') must NOT toggle mode
+        processor.ProcessKeyDown(0xA2, 0, false, false, false, false, false, 10);
+        processor.ProcessKeyDown(0xA0, 0, false, false, true, false, false, 10);
+        processor.ProcessKeyDown('T', 0, true, false, true, false, false, 10);
+        bool toggledOnCtrlShiftT = processor.ProcessKeyUp(0xA0, 0, false, true, false, false, 10);
+        processor.ProcessKeyUp(0xA2, 0, false, false, false, false, 10);
+        Assert.False(toggledOnCtrlShiftT);
+        Assert.False(processor.CurrentConfig.VietnameseEnabled);
+
+        // 4. Newer EVKey starts AFTER VietKey (08:10 UTC > 08:00 UTC) -> VietKey retains priority and disarms EVKey chord
+        activePeers.Add(new PeerImeProcessInfo(ProcessId: 2002, ProcessName: "EVKey64", StartTimeUtc: vietKeyStartUtc.AddMinutes(10)));
+        var decision = arbitrator.Evaluate(bypassCache: true);
+        Assert.False(decision.ShouldYieldToOlderPeer);
+        Assert.True(decision.HasNewerPeer);
+        Assert.Equal(2002, decision.NewerPeerToRehookPid);
+        arbitrator.MarkRehooked(2002);
+
+        processor.ProcessKeyDown(0xA0, 0, false, false, false, false, false, 10); // VK_LSHIFT down first
+        processor.ProcessKeyDown(0xA2, 0, true, false, false, false, false, 10);  // VK_LCONTROL down second
+        bool toggledOverNewerEvKey = processor.ProcessKeyUp(0xA2, 0, true, false, false, false, 10);
+        processor.ProcessKeyUp(0xA0, 0, false, false, false, false, 10);
+        Assert.True(toggledOverNewerEvKey);
+        Assert.True(processor.CurrentConfig.VietnameseEnabled);
+        Assert.Single(dispatchedBatches);
+        Assert.Equal(KeyboardSessionProcessor.VkNeutralChordBreaker, dispatchedBatches[0][0].VirtualKey);
+    }
+
+    // @covers REQ-settings-1
+    [Fact]
     public void SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu()
     {
         using var tray = new VietKey.Engine.Tray.TrayIconHost(AppConfig.Default);

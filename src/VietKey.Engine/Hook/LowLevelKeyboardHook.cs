@@ -33,10 +33,26 @@ public sealed class LowLevelKeyboardHook : IDisposable
         }
     }
 
+    public void RefreshHookToFront()
+    {
+        Stop();
+        Start();
+    }
+
     private nint HookCallback(int nCode, nint wParam, nint lParam)
     {
-        if (nCode >= 0 && (wParam == NativeMethods.WM_KEYDOWN || wParam == NativeMethods.WM_SYSKEYDOWN))
+        if (nCode >= 0)
         {
+            if (_processor.PeerArbitrator is { } arbitrator)
+            {
+                var decision = arbitrator.Evaluate(bypassCache: false);
+                if (decision.NewerPeerToRehookPid is int newPeerPid)
+                {
+                    arbitrator.MarkRehooked(newPeerPid);
+                    RefreshHookToFront();
+                }
+            }
+
             var info = Marshal.PtrToStructure<NativeMethods.KBDLLHOOKSTRUCT>(lParam);
             bool shift = (NativeMethods.GetKeyState(0x10) & 0x8000) != 0;
             bool ctrl = (NativeMethods.GetKeyState(0x11) & 0x8000) != 0;
@@ -45,19 +61,33 @@ public sealed class LowLevelKeyboardHook : IDisposable
             bool caps = (NativeMethods.GetKeyState(0x14) & 0x0001) != 0;
             nint hwnd = NativeMethods.GetForegroundWindow();
 
-            bool suppress = _processor.ProcessKeyDown(
-                (int)info.vkCode,
-                info.flags,
-                shift,
-                caps,
-                ctrl,
-                alt,
-                win,
-                hwnd);
-
-            if (suppress)
+            if (wParam == NativeMethods.WM_KEYDOWN || wParam == NativeMethods.WM_SYSKEYDOWN)
             {
-                return 1;
+                bool suppress = _processor.ProcessKeyDown(
+                    (int)info.vkCode,
+                    info.flags,
+                    shift,
+                    caps,
+                    ctrl,
+                    alt,
+                    win,
+                    hwnd);
+
+                if (suppress)
+                {
+                    return 1;
+                }
+            }
+            else if (wParam == NativeMethods.WM_KEYUP || wParam == NativeMethods.WM_SYSKEYUP)
+            {
+                _ = _processor.ProcessKeyUp(
+                    (int)info.vkCode,
+                    info.flags,
+                    shift,
+                    ctrl,
+                    alt,
+                    win,
+                    hwnd);
             }
         }
 
