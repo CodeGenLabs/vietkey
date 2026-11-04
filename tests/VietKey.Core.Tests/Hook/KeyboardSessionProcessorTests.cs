@@ -48,6 +48,43 @@ public sealed class KeyboardSessionProcessorTests
         Assert.Equal('á', (char)win32Inputs[2].U.ki.wScan);
     }
 
+    // @covers REQ-os-1
+    [Fact]
+    public void ProcessKeyDown_WhenJapaneseOrCjkImeIsActive_BypassesVietnameseTransformationForKanji()
+    {
+        Assert.True(NativeMethods.IsCjkKeyboardLayout(0x04110411)); // Japanese (0x0411)
+        Assert.True(NativeMethods.IsCjkKeyboardLayout(0x04120412)); // Korean (0x0412)
+        Assert.True(NativeMethods.IsCjkKeyboardLayout(0x08040804)); // Chinese Simplified (0x0804)
+        Assert.False(NativeMethods.IsCjkKeyboardLayout(0x04090409)); // English US (0x0409)
+        Assert.False(NativeMethods.IsCjkKeyboardLayout(0x042A042A)); // Vietnamese (0x042A)
+
+        var dispatchedBatches = new List<SimulatedKeyEvent[]>();
+        bool isJapaneseImeActive = true;
+
+        var processor = new KeyboardSessionProcessor(
+            AppConfig.Default,
+            new Dictionary<string, string>(),
+            _ => "chrome.exe",
+            batch => dispatchedBatches.Add(batch),
+            _ => isJapaneseImeActive);
+
+        // Type "kanji" (K, A, N, J, I) while Japanese IME is active -> zero suppression, zero batches
+        foreach (char key in "KANJI")
+        {
+            bool suppressed = processor.ProcessKeyDown(key, 0, false, false, false, false, false, 10);
+            Assert.False(suppressed);
+        }
+        Assert.Empty(dispatchedBatches);
+
+        // Switch back to English layout (0x0409) -> typing "kanj" transforms to "kạn"
+        isJapaneseImeActive = false;
+        Assert.False(processor.ProcessKeyDown('K', 0, false, false, false, false, false, 10));
+        Assert.False(processor.ProcessKeyDown('A', 0, false, false, false, false, false, 10));
+        Assert.False(processor.ProcessKeyDown('N', 0, false, false, false, false, false, 10));
+        Assert.True(processor.ProcessKeyDown('J', 0, false, false, false, false, false, 10));
+        Assert.Single(dispatchedBatches);
+    }
+
     // @covers REQ-settings-1
     [Fact]
     public void SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance()
