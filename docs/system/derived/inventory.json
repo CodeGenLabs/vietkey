@@ -15,8 +15,8 @@
         "lines": 15
       },
       "markdown": {
-        "files": 49,
-        "lines": 4331
+        "files": 50,
+        "lines": 4518
       },
       "other": {
         "files": 7,
@@ -32,8 +32,8 @@
       }
     },
     "entry_points": [],
-    "files_considered": 102,
-    "files_tracked": 102,
+    "files_considered": 103,
+    "files_tracked": 103,
     "stack": {},
     "test_files": [
       "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs",
@@ -48,7 +48,7 @@
       "tests/VietKey.Core.Tests/VietKey.Core.Tests.csproj"
     ]
   },
-  "generated_from_commit": "8ff06931dba69d316d71e7b9988e1c51d3ada11d",
+  "generated_from_commit": "caf57e22a6321e161c9a0192f4161bb06e42a362",
   "generator": "forge sync derived",
   "tool": "forge"
 }
