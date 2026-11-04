@@ -1,12 +1,12 @@
 {
-  "base": "0b70b6c5c210749793d3c23f2a8dad3802197f73",
+  "base": "bf45cb087e927984c18247f9d4b8dd571746bfe9",
   "change": "0002-win32-message-loop-and-desktop-ui-window",
-  "commit": "0b70b6c5c210749793d3c23f2a8dad3802197f73",
+  "commit": "32627a67e6741cc59a4d2c504951a247d9df77a9",
   "failing": [],
   "gates": {
     "build": {
       "cmd": "dotnet build --no-restore --nologo",
-      "duration_ms": 8043,
+      "duration_ms": 50231,
       "exit": 0,
       "status": "pass"
     },
@@ -25,7 +25,7 @@
       "status": "pending"
     },
     "derived_fresh": {
-      "commits_behind": 2,
+      "commits_behind": 4,
       "dirty": [],
       "status": "pass"
     },
@@ -52,7 +52,7 @@
     },
     "tests": {
       "cmd": "dotnet test --no-build --nologo",
-      "duration_ms": 6791,
+      "duration_ms": 19477,
       "exit": 0,
       "status": "pass"
     },

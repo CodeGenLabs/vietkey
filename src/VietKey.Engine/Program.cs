@@ -7,11 +7,17 @@ namespace VietKey.Engine;
 
 public static class Program
 {
+    [STAThread]
     public static int Main(string[] args)
     {
+        var settingsLauncher = new SettingsProcessLauncher();
         using var instanceGuard = new SingleInstanceGuard();
         if (!instanceGuard.IsFirstInstance)
         {
+            if (args.Contains("--show-ui"))
+            {
+                settingsLauncher.LaunchSettingsUi();
+            }
             return 0;
         }
 
@@ -27,6 +33,22 @@ public static class Program
         processor.VietnameseModeChanged += enabled =>
             tray.UpdateState(enabled, processor.CurrentConfig.InputMethod);
 
+        tray.ToggleRequested += () =>
+        {
+            processor.ToggleVietnameseMode(NativeMethods.GetForegroundWindow());
+            store.Save(processor.CurrentConfig);
+        };
+
+        tray.InputMethodChangeRequested += method =>
+        {
+            var updated = processor.CurrentConfig with { InputMethod = method };
+            processor.UpdateConfig(updated, reloadCoordinator.CurrentMacros);
+            tray.UpdateState(updated.VietnameseEnabled, updated.InputMethod);
+            store.Save(updated);
+        };
+
+        tray.OpenSettingsRequested += () => settingsLauncher.LaunchSettingsUi();
+
         reloadCoordinator.ConfigReloaded += (cfg, macros) =>
         {
             processor.UpdateConfig(cfg, macros);
@@ -39,8 +61,18 @@ public static class Program
             return 0;
         }
 
+        using var messageWindow = new Win32TrayMessageWindow(tray);
+        messageWindow.CreateAndAttach();
+
         using var hook = new LowLevelKeyboardHook(processor);
         hook.Start();
+
+        if (args.Contains("--show-ui"))
+        {
+            settingsLauncher.LaunchSettingsUi();
+        }
+
+        messageWindow.RunMessageLoop();
         return 0;
     }
 }

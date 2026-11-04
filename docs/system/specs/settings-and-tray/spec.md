@@ -5,7 +5,7 @@
 Single-instance Win32 System Tray host, global language toggle hotkeys, portable local JSON configuration storage with live event-driven reload, and an on-demand WinUI 3 Settings application with zero idle RAM footprint.
 
 ### Requirement: REQ-settings-1 - Lightweight System Tray host and global toggle hotkeys
-The `VietKey.Engine` process SHALL run as a single-instance headless background daemon hosting a native Win32 System Tray icon (`Shell_NotifyIconW`) that displays the current mode (`V` for Vietnamese, `E` for English), toggles mode on left-click or configured global hotkey (`Ctrl+Shift` or `Alt+Z`), and exposes a context menu to switch input method, open the WinUI 3 Settings app, or exit.
+The `VietKey.Engine` process SHALL run as a single-instance headless background daemon with a Win32 message window and message loop (`GetMessageW` / `DispatchMessageW`) hosting a native System Tray icon (`Shell_NotifyIconW`) that displays the current mode (`V` for Vietnamese, `E` for English), toggles mode on left-click or configured global hotkey (`Ctrl+Shift` or `Alt+Z`), and exposes a popup context menu to switch input method, open the Settings app, or exit.
 
 #### Scenario: Global hotkey toggles between Vietnamese and English modes
 - **WHEN** the user presses the configured toggle hotkey (`Alt+Z` or `Ctrl+Shift` release without intervening keys)
@@ -14,6 +14,10 @@ The `VietKey.Engine` process SHALL run as a single-instance headless background 
 #### Scenario: Duplicate engine launch is prevented by single-instance mutex
 - **WHEN** a second instance of `VietKey.Engine` is started while `Local\VietKeyEngineMutex` is already held
 - **THEN** the second instance exits immediately with code `0` without registering a duplicate keyboard hook or tray icon
+
+#### Scenario: System Tray mouse callback handles left-click toggle and right-click context menu
+- **WHEN** the hidden tray message window receives `WM_APP_TRAY` with `WM_LBUTTONUP` or `WM_RBUTTONUP`
+- **THEN** `WM_LBUTTONUP` toggles between `Vietnamese` and `English` modes immediately, while `WM_RBUTTONUP` opens the popup context menu with commands for toggling language, switching `Telex`/`VNI`, opening Settings, or exiting the message loop
 
 ### Requirement: REQ-settings-2 - Local JSON configuration persistence and zero-downtime live reload
 The system SHALL store all user settings (`config.json`) and macros (`macros.json`) as human-readable UTF-8 JSON files under `%AppData%\VietKey\` without any database or network dependency, and `VietKey.Engine` SHALL reload configuration in memory whenever the named event `Local\VietKeyConfigReloadEvent` is signaled.
@@ -27,11 +31,11 @@ The system SHALL store all user settings (`config.json`) and macros (`macros.jso
 - **THEN** `VietKey.Engine` reloads the new settings into memory within 50 ms without dropping the keyboard hook or restarting the process
 
 ### Requirement: REQ-settings-3 - On-demand WinUI 3 Settings application with zero idle RAM footprint
-The `VietKey.UI` process SHALL provide a Windows 11 WinUI 3 window to configure all typing options, hotkeys, Windows startup registration (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`), and the macro dictionary, and SHALL terminate its process completely when the user closes the Settings window so WinUI 3 consumes 0 MB of RAM during background typing.
+The `VietKey.UI` process SHALL provide a Windows 11 desktop settings window (`WinExe`) to configure all typing options, hotkeys, Windows startup registration (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`), and the macro dictionary, SHALL automatically ensure `VietKey.Engine` is running when launched interactively, and SHALL terminate its process completely when the user closes the Settings window so the UI consumes 0 MB of RAM during background typing.
 
-#### Scenario: Opening Settings from System Tray launches WinUI 3 process on demand
-- **WHEN** the user selects `Cài đặt (Settings)` from the `VietKey.Engine` tray menu
-- **THEN** `VietKey.Engine` spawns `VietKey.UI.exe` (or brings its existing window to the foreground if already open) displaying the current configuration from `%AppData%\VietKey\config.json`
+#### Scenario: Opening Settings from System Tray or Visual Studio displays interactive window and syncs controls
+- **WHEN** the user launches `VietKey.UI` (directly from Visual Studio `F5`, via `--show-ui`, or from the `VietKey.Engine` tray menu)
+- **THEN** `VietKey.UI` initializes its desktop window controls from `%AppData%\VietKey\config.json` and `macros.json`, allows interactive editing of all toggles, dropdowns, and macros, and applies changes back to `SettingsViewModel`
 
 #### Scenario: Closing the WinUI 3 Settings window terminates the UI process
 - **WHEN** the user closes the `VietKey.UI` window

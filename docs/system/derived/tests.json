@@ -15,7 +15,8 @@
         "tests/VietKey.Core.Tests/Injection/SmartSwitchTrackerTests.cs::OnForegroundChanged_RestoresRememberedLanguagePerExecutable_AndClearsBuffer"
       ],
       "REQ-settings-1": [
-        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance"
+        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance",
+        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu"
       ],
       "REQ-settings-2": [
         "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::ConfigReloadCoordinator_WhenSignaled_ReloadsUpdatedConfigWithin50Ms",
@@ -102,6 +103,13 @@
             ],
             "line": 52,
             "name": "SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance"
+          },
+          {
+            "covers": [
+              "REQ-settings-1"
+            ],
+            "line": 88,
+            "name": "SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu"
           }
         ],
         "untagged": 0
@@ -266,17 +274,17 @@
           },
           {
             "covers": [],
-            "line": 88,
+            "line": 110,
             "name": "Dispose"
           }
         ],
         "untagged": 1
       }
     },
-    "tagged_tests": 23,
-    "total_tests": 25
+    "tagged_tests": 24,
+    "total_tests": 26
   },
-  "generated_from_commit": "4a4b927e2db434344b7f630b4aa3f21c0e064945",
+  "generated_from_commit": "32627a67e6741cc59a4d2c504951a247d9df77a9",
   "generator": "forge sync derived",
   "tool": "forge"
 }

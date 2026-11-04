@@ -83,4 +83,27 @@ public sealed class KeyboardSessionProcessorTests
         Assert.False(tray.IsVietnameseActive);
         Assert.Contains("Tiếng Anh (E)", tray.GetTooltipText());
     }
+
+    // @covers REQ-settings-1
+    [Fact]
+    public void SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu()
+    {
+        var tray = new VietKey.Engine.Tray.TrayIconHost(AppConfig.Default);
+        bool toggleCalled = false;
+        bool openSettingsCalled = false;
+        bool contextMenuCalled = false;
+
+        tray.ToggleRequested += () => toggleCalled = true;
+        tray.OpenSettingsRequested += () => openSettingsCalled = true;
+        tray.ContextMenuRequested += () => contextMenuCalled = true;
+
+        tray.HandleMouseMessage(VietKey.Engine.Tray.TrayIconHost.WM_LBUTTONUP);
+        Assert.True(toggleCalled);
+
+        tray.HandleMouseMessage(VietKey.Engine.Tray.TrayIconHost.WM_LBUTTONDBLCLK);
+        Assert.True(openSettingsCalled);
+
+        tray.HandleMouseMessage(VietKey.Engine.Tray.TrayIconHost.WM_RBUTTONUP);
+        Assert.True(contextMenuCalled);
+    }
 }

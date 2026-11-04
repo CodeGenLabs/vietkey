@@ -29,7 +29,9 @@
         "anchors": [],
         "back_references": [],
         "candidate": false,
-        "changes": [],
+        "changes": [
+          "0002-win32-message-loop-and-desktop-ui-window"
+        ],
         "defined_in": "docs/system/decisions/ADR-0002-dual-process-hook-architecture.md",
         "evidence": [],
         "governed_by": [],
@@ -126,7 +128,9 @@
         "anchors": [],
         "back_references": [],
         "candidate": false,
-        "changes": [],
+        "changes": [
+          "0002-win32-message-loop-and-desktop-ui-window"
+        ],
         "defined_in": "docs/system/specs/settings-and-tray/spec.md:7",
         "evidence": [],
         "governed_by": [],
@@ -141,7 +145,8 @@
         "status": null,
         "supersedes": null,
         "tests": [
-          "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance"
+          "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance",
+          "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu"
         ],
         "title": "Lightweight System Tray host and global toggle hotkeys"
       },
@@ -151,7 +156,7 @@
         "back_references": [],
         "candidate": false,
         "changes": [],
-        "defined_in": "docs/system/specs/settings-and-tray/spec.md:18",
+        "defined_in": "docs/system/specs/settings-and-tray/spec.md:22",
         "evidence": [],
         "governed_by": [],
         "governs": [],
@@ -177,8 +182,10 @@
         "anchors": [],
         "back_references": [],
         "candidate": false,
-        "changes": [],
-        "defined_in": "docs/system/specs/settings-and-tray/spec.md:29",
+        "changes": [
+          "0002-win32-message-loop-and-desktop-ui-window"
+        ],
+        "defined_in": "docs/system/specs/settings-and-tray/spec.md:33",
         "evidence": [],
         "governed_by": [],
         "governs": [],
@@ -307,11 +314,11 @@
       "decisions": 2,
       "ids_indexed": 12,
       "invariants_without_tests": [],
-      "tests_tagged": 23,
-      "tests_total": 25
+      "tests_tagged": 24,
+      "tests_total": 26
     }
   },
-  "generated_from_commit": "6a729ef3df968234b3c482e48e0d0bd6528055ff",
+  "generated_from_commit": "5181d90ed93b1c33eaba46d1bb03afcd53353fe5",
   "generator": "forge sync derived",
   "tool": "forge"
 }
