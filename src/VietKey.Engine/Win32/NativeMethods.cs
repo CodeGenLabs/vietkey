@@ -31,6 +31,29 @@ public static class NativeMethods
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    public struct RECT
+    {
+        public int left;
+        public int top;
+        public int right;
+        public int bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct GUITHREADINFO
+    {
+        public uint cbSize;
+        public uint flags;
+        public nint hwndActive;
+        public nint hwndFocus;
+        public nint hwndCapture;
+        public nint hwndMenuOwner;
+        public nint hwndMoveSize;
+        public nint hwndCaret;
+        public RECT rcCaret;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     public struct INPUT
     {
         public uint type;
@@ -97,6 +120,13 @@ public static class NativeMethods
     public static extern uint GetWindowThreadProcessId(nint hWnd, out uint lpdwProcessId);
 
     [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetGUIThreadInfo(uint idThread, ref GUITHREADINFO lpgui);
+
+    [DllImport("user32.dll")]
+    public static extern nint GetKeyboardLayout(uint idThread);
+
+    [DllImport("user32.dll")]
     public static extern short GetKeyState(int nVirtKey);
 
     [DllImport("kernel32.dll", SetLastError = true)]
@@ -109,6 +139,54 @@ public static class NativeMethods
     [DllImport("kernel32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool CloseHandle(nint hObject);
+
+    public static bool IsCjkKeyboardLayout(nint hkl)
+    {
+        int langId = (ushort)((ulong)hkl & 0xFFFF);
+        int primaryLang = langId & 0x03FF;
+        // 0x11 = LANG_JAPANESE (0x0411), 0x12 = LANG_KOREAN (0x0412), 0x04 = LANG_CHINESE (0x0404, 0x0804, etc.)
+        return primaryLang is 0x11 or 0x12 or 0x04;
+    }
+
+    public static bool IsForeignImeActive(nint foregroundHwnd)
+    {
+        var guiInfo = new GUITHREADINFO
+        {
+            cbSize = (uint)Marshal.SizeOf<GUITHREADINFO>()
+        };
+
+        if (GetGUIThreadInfo(0, ref guiInfo))
+        {
+            if (guiInfo.hwndFocus != 0)
+            {
+                uint focusThread = GetWindowThreadProcessId(guiInfo.hwndFocus, out _);
+                if (focusThread != 0 && IsCjkKeyboardLayout(GetKeyboardLayout(focusThread)))
+                {
+                    return true;
+                }
+            }
+
+            if (guiInfo.hwndActive != 0)
+            {
+                uint activeThread = GetWindowThreadProcessId(guiInfo.hwndActive, out _);
+                if (activeThread != 0 && IsCjkKeyboardLayout(GetKeyboardLayout(activeThread)))
+                {
+                    return true;
+                }
+            }
+        }
+
+        if (foregroundHwnd != 0)
+        {
+            uint fgThread = GetWindowThreadProcessId(foregroundHwnd, out _);
+            if (fgThread != 0 && IsCjkKeyboardLayout(GetKeyboardLayout(fgThread)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public static string ResolveProcessImageName(nint hwnd)
     {

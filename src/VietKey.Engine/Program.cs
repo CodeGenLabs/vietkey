@@ -27,7 +27,8 @@ public static class Program
             reloadCoordinator.CurrentConfig,
             reloadCoordinator.CurrentMacros,
             NativeMethods.ResolveProcessImageName,
-            batch => NativeMethods.DispatchBatch(batch));
+            batch => NativeMethods.DispatchBatch(batch),
+            NativeMethods.IsForeignImeActive);
 
         using var tray = new TrayIconHost(reloadCoordinator.CurrentConfig);
         processor.VietnameseModeChanged += enabled =>

@@ -51,7 +51,9 @@
         "anchors": [],
         "back_references": [],
         "candidate": false,
-        "changes": [],
+        "changes": [
+          "0005-bypass-cjk-ime-layout"
+        ],
         "defined_in": "docs/system/specs/os-integration/spec.md:7",
         "evidence": [],
         "governed_by": [],
@@ -67,6 +69,7 @@
         "supersedes": null,
         "tests": [
           "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::ProcessKeyDown_TransformsVietnameseAndDispatchesSingleBatch_WhileIgnoringInjectedKeys",
+          "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::ProcessKeyDown_WhenJapaneseOrCjkImeIsActive_BypassesVietnameseTransformationForKanji",
           "tests/VietKey.Core.Tests/Injection/InputBatchBuilderTests.cs::BuildBatch_ProducesAtomicBackspacesAndUnicodeKeyEvents_AndIgnoresInjectedEvents",
           "tests/VietKey.Core.Tests/Injection/InputBatchBuilderTests.cs::IsNavigationOrResetKey_DetectsNavigationAndModifierShortcuts"
         ],
@@ -78,7 +81,7 @@
         "back_references": [],
         "candidate": false,
         "changes": [],
-        "defined_in": "docs/system/specs/os-integration/spec.md:22",
+        "defined_in": "docs/system/specs/os-integration/spec.md:26",
         "evidence": [],
         "governed_by": [],
         "governs": [],
@@ -103,7 +106,7 @@
         "back_references": [],
         "candidate": false,
         "changes": [],
-        "defined_in": "docs/system/specs/os-integration/spec.md:33",
+        "defined_in": "docs/system/specs/os-integration/spec.md:37",
         "evidence": [],
         "governed_by": [],
         "governs": [],
@@ -308,11 +311,11 @@
       "decisions": 2,
       "ids_indexed": 12,
       "invariants_without_tests": [],
-      "tests_tagged": 24,
-      "tests_total": 26
+      "tests_tagged": 25,
+      "tests_total": 27
     }
   },
-  "generated_from_commit": "e379e091801dce7d58c506a6e28a4add1260a0a4",
+  "generated_from_commit": "89daf4ebc53c67745d1dfc3153f7ecaff7aa47fc",
   "generator": "forge sync derived",
   "tool": "forge"
 }

@@ -10,6 +10,7 @@ public sealed class KeyboardSessionProcessor
     private readonly AppCompatibilityDetector _appDetector;
     private readonly SmartSwitchTracker _smartSwitch = new();
     private readonly Action<SimulatedKeyEvent[]> _batchDispatcher;
+    private readonly Func<nint, bool>? _foreignImeChecker;
     private AppConfig _config;
     private IReadOnlyDictionary<string, string> _macros;
 
@@ -20,12 +21,14 @@ public sealed class KeyboardSessionProcessor
         AppConfig initialConfig,
         IReadOnlyDictionary<string, string> initialMacros,
         Func<nint, string> processNameResolver,
-        Action<SimulatedKeyEvent[]> batchDispatcher)
+        Action<SimulatedKeyEvent[]> batchDispatcher,
+        Func<nint, bool>? foreignImeChecker = null)
     {
         _config = initialConfig;
         _macros = initialMacros;
         _appDetector = new AppCompatibilityDetector(processNameResolver);
         _batchDispatcher = batchDispatcher;
+        _foreignImeChecker = foreignImeChecker;
     }
 
     public void UpdateConfig(AppConfig config, IReadOnlyDictionary<string, string> macros)
@@ -88,6 +91,13 @@ public sealed class KeyboardSessionProcessor
         {
             ToggleVietnameseMode(foregroundHwnd);
             return true;
+        }
+
+        // Bypass Vietnamese composition when OS keyboard layout is Japanese / Korean / Chinese IME (or VK_PROCESSKEY 0xE5)
+        if (virtualKey == 0xE5 || (_foreignImeChecker is not null && _foreignImeChecker(foregroundHwnd)))
+        {
+            _transformer.Reset();
+            return false;
         }
 
         if (InputBatchBuilder.IsNavigationOrResetKey(virtualKey, ctrlDown, altDown, winDown))

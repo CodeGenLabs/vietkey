@@ -4,6 +4,7 @@
     "covers_index": {
       "REQ-os-1": [
         "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::ProcessKeyDown_TransformsVietnameseAndDispatchesSingleBatch_WhileIgnoringInjectedKeys",
+        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::ProcessKeyDown_WhenJapaneseOrCjkImeIsActive_BypassesVietnameseTransformationForKanji",
         "tests/VietKey.Core.Tests/Injection/InputBatchBuilderTests.cs::BuildBatch_ProducesAtomicBackspacesAndUnicodeKeyEvents_AndIgnoresInjectedEvents",
         "tests/VietKey.Core.Tests/Injection/InputBatchBuilderTests.cs::IsNavigationOrResetKey_DetectsNavigationAndModifierShortcuts"
       ],
@@ -99,16 +100,23 @@
           },
           {
             "covers": [
-              "REQ-settings-1"
+              "REQ-os-1"
             ],
             "line": 52,
+            "name": "ProcessKeyDown_WhenJapaneseOrCjkImeIsActive_BypassesVietnameseTransformationForKanji"
+          },
+          {
+            "covers": [
+              "REQ-settings-1"
+            ],
+            "line": 89,
             "name": "SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance"
           },
           {
             "covers": [
               "REQ-settings-1"
             ],
-            "line": 88,
+            "line": 125,
             "name": "SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu"
           }
         ],
@@ -281,10 +289,10 @@
         "untagged": 1
       }
     },
-    "tagged_tests": 24,
-    "total_tests": 26
+    "tagged_tests": 25,
+    "total_tests": 27
   },
-  "generated_from_commit": "8ff06931dba69d316d71e7b9988e1c51d3ada11d",
+  "generated_from_commit": "ab414feb34fefbadd6e3dfdf9eb150fa55cb0caf",
   "generator": "forge sync derived",
   "tool": "forge"
 }
