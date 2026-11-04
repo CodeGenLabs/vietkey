@@ -23,20 +23,468 @@
         "supersedes": null,
         "tests": [],
         "title": "ADR-0001 - Adopt an anchored claim store"
+      },
+      "ADR-0002": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": "docs/system/decisions/ADR-0002-dual-process-hook-architecture.md",
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "ADR-0002",
+        "justifies": [],
+        "kind": "decision",
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [],
+        "title": "ADR-0002 - Dual-process Win32 hook engine and on-demand WinUI 3 settings"
+      },
+      "ARC-dual-process-isolation": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": null,
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "ARC-dual-process-isolation",
+        "justifies": [],
+        "kind": null,
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [],
+        "title": null
+      },
+      "INV-atomic-sendinput": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": null,
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "INV-atomic-sendinput",
+        "justifies": [],
+        "kind": null,
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [],
+        "title": null
+      },
+      "INV-hook-nonblocking": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": null,
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "INV-hook-nonblocking",
+        "justifies": [],
+        "kind": null,
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [],
+        "title": null
+      },
+      "REQ-os": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": null,
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-os",
+        "justifies": [],
+        "kind": null,
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [],
+        "title": null
+      },
+      "REQ-os-1": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": "docs/system/specs/os-integration/spec.md:7",
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-os-1",
+        "justifies": [],
+        "kind": "requirement",
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [
+          "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::ProcessKeyDown_TransformsVietnameseAndDispatchesSingleBatch_WhileIgnoringInjectedKeys",
+          "tests/VietKey.Core.Tests/Injection/InputBatchBuilderTests.cs::BuildBatch_ProducesAtomicBackspacesAndUnicodeKeyEvents_AndIgnoresInjectedEvents",
+          "tests/VietKey.Core.Tests/Injection/InputBatchBuilderTests.cs::IsNavigationOrResetKey_DetectsNavigationAndModifierShortcuts"
+        ],
+        "title": "Non-blocking low-level keyboard hook and single-batch Unicode injection"
+      },
+      "REQ-os-2": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": "docs/system/specs/os-integration/spec.md:22",
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-os-2",
+        "justifies": [],
+        "kind": "requirement",
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [
+          "tests/VietKey.Core.Tests/Injection/AppCompatibilityDetectorTests.cs::BuildBatch_ChromiumPrependsAutocompleteFix_WhileVsCodeTeamsWordEmitDirectBatch",
+          "tests/VietKey.Core.Tests/Injection/AppCompatibilityDetectorTests.cs::ResolveForWindow_CachesHwndAndClassifiesChromiumElectronAndOffice"
+        ],
+        "title": "Chromium, Google Search, Electron, and Word compatibility injection"
+      },
+      "REQ-os-3": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": "docs/system/specs/os-integration/spec.md:33",
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-os-3",
+        "justifies": [],
+        "kind": "requirement",
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [
+          "tests/VietKey.Core.Tests/Injection/SmartSwitchTrackerTests.cs::OnForegroundChanged_RestoresRememberedLanguagePerExecutable_AndClearsBuffer"
+        ],
+        "title": "Smart Switch per-application input language state"
+      },
+      "REQ-settings": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": null,
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-settings",
+        "justifies": [],
+        "kind": null,
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [],
+        "title": null
+      },
+      "REQ-settings-1": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": "docs/system/specs/settings-and-tray/spec.md:7",
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-settings-1",
+        "justifies": [],
+        "kind": "requirement",
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [
+          "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance"
+        ],
+        "title": "Lightweight System Tray host and global toggle hotkeys"
+      },
+      "REQ-settings-2": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": "docs/system/specs/settings-and-tray/spec.md:18",
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-settings-2",
+        "justifies": [],
+        "kind": "requirement",
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [
+          "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::ConfigReloadCoordinator_WhenSignaled_ReloadsUpdatedConfigWithin50Ms",
+          "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::Load_WhenFileContainsCorruptedJson_FallsBackToSafeDefaults",
+          "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::Load_WhenFileDoesNotExist_ReturnsAndWritesDefaultConfig",
+          "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::SaveAndLoad_RoundTripsConfigurationAndMacros"
+        ],
+        "title": "Local JSON configuration persistence and zero-downtime live reload"
+      },
+      "REQ-settings-3": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": "docs/system/specs/settings-and-tray/spec.md:29",
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-settings-3",
+        "justifies": [],
+        "kind": "requirement",
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [
+          "tests/VietKey.Core.Tests/UI/SettingsViewModelTests.cs::OnDemandLauncherAndWindowClose_SpawnsUiFromTrayMenuAndTerminatesProcessOnClose",
+          "tests/VietKey.Core.Tests/UI/SettingsViewModelTests.cs::SaveAndMacroEditor_PersistsConfigSignalsLiveReloadAndUpdatesStartupRegistry"
+        ],
+        "title": "On-demand WinUI 3 Settings application with zero idle RAM footprint"
+      },
+      "REQ-typing": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": null,
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-typing",
+        "justifies": [],
+        "kind": null,
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [],
+        "title": null
+      },
+      "REQ-typing-1": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": "docs/system/specs/typing-engine/spec.md:7",
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-typing-1",
+        "justifies": [],
+        "kind": "requirement",
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [
+          "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs::DoubleModifierKeyUndo_RevertsAndSuppressesFurtherTransformInSyllable",
+          "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs::Telex_BasicVowelsCrossbarDAndTones_ComposeCorrectly",
+          "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs::Telex_ComposesTiengAndComputesMinimalDiff",
+          "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs::Vni_ComposesVowelsCrossbarDAndTones"
+        ],
+        "title": "Telex and VNI syllable composition"
+      },
+      "REQ-typing-2": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": "docs/system/specs/typing-engine/spec.md:26",
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-typing-2",
+        "justifies": [],
+        "kind": "requirement",
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [
+          "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs::FreeMarkingAndDynamicToneRepositioning_WorksAcrossSyllable",
+          "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs::TonePlacement_ModernVsClassic_PlacesToneOnExpectedVowel"
+        ],
+        "title": "Free diacritic marking and automatic tone repositioning"
+      },
+      "REQ-typing-3": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": "docs/system/specs/typing-engine/spec.md:41",
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-typing-3",
+        "justifies": [],
+        "kind": "requirement",
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [
+          "tests/VietKey.Core.Tests/Typing/VietnameseSpellCheckerTests.cs::AutoRestoreEnglishAndInvalidPhonotactics_RestoresRawKeys",
+          "tests/VietKey.Core.Tests/Typing/VietnameseSpellCheckerTests.cs::ValidVietnameseSyllables_ArePreservedWhenSpellCheckEnabled"
+        ],
+        "title": "Vietnamese phonotactic spellcheck and automatic English raw-key restoration"
+      },
+      "REQ-typing-4": {
+        "anchor_paths": [],
+        "anchors": [],
+        "back_references": [],
+        "candidate": false,
+        "changes": [
+          "0001-vietkey-mvp-winui3-ime"
+        ],
+        "defined_in": "docs/system/specs/typing-engine/spec.md:56",
+        "evidence": [],
+        "governed_by": [],
+        "governs": [],
+        "id": "REQ-typing-4",
+        "justifies": [],
+        "kind": "requirement",
+        "provisional": false,
+        "referenced_by_adr": [],
+        "references": [],
+        "since": null,
+        "status": null,
+        "supersedes": null,
+        "tests": [
+          "tests/VietKey.Core.Tests/Typing/MacroTableTests.cs::WordBoundary_WhenMacroDoesNotMatchOrDisabled_EmitsNormalText",
+          "tests/VietKey.Core.Tests/Typing/MacroTableTests.cs::WordBoundary_WhenMacroMatchesOnSpaceOrEnter_ExpandsTriggerText"
+        ],
+        "title": "Text expansion macros on word boundaries"
       }
     },
     "summary": {
       "candidates": 0,
       "claims": 0,
-      "dangling_references": [],
-      "decisions": 1,
-      "ids_indexed": 1,
+      "dangling_references": [
+        "ARC-dual-process-isolation",
+        "INV-atomic-sendinput",
+        "INV-hook-nonblocking",
+        "REQ-os",
+        "REQ-settings",
+        "REQ-typing"
+      ],
+      "decisions": 2,
+      "ids_indexed": 18,
       "invariants_without_tests": [],
-      "tests_tagged": 0,
-      "tests_total": 0
+      "tests_tagged": 23,
+      "tests_total": 25
     }
   },
-  "generated_from_commit": "e59bd9be3e707d99534416c01bbd683e63fe2c1c",
+  "generated_from_commit": "64caf92ed6b806576377080fb21ce50c72d405af",
   "generator": "forge sync derived",
   "tool": "forge"
 }

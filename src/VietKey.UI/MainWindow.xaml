@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="VietKey.UI.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="VietKey — Bảng điều khiển (WinUI 3)">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop Kind="Base"/>
+    </Window.SystemBackdrop>
+
+    <Grid Padding="24" RowDefinitions="Auto,*,Auto" RowSpacing="16">
+        <StackPanel Grid.Row="0" Spacing="4">
+            <TextBlock Text="VietKey cho Windows 11" Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock Text="Bộ gõ Tiếng Việt nhẹ, mượt, không độ trễ" Opacity="0.7"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Spacing="12">
+                <ToggleSwitch x:Name="VietnameseToggle" Header="Chế độ Tiếng Việt (V/E)" OffContent="Tiếng Anh (E)" OnContent="Tiếng Việt (V)"/>
+                <ComboBox x:Name="InputMethodCombo" Header="Kiểu gõ" SelectedIndex="0">
+                    <ComboBoxItem Content="Telex"/>
+                    <ComboBoxItem Content="VNI"/>
+                </ComboBox>
+                <ComboBox x:Name="HotkeyCombo" Header="Phím tắt chuyển Anh/Việt" SelectedIndex="0">
+                    <ComboBoxItem Content="Alt + Z"/>
+                    <ComboBoxItem Content="Ctrl + Shift"/>
+                </ComboBox>
+                <ToggleSwitch x:Name="ModernToneToggle" Header="Đặt dấu kiểu mới (hoà, thuý)" IsOn="True"/>
+                <ToggleSwitch x:Name="SpellCheckToggle" Header="Kiểm tra chính tả &amp; tự khôi phục từ tiếng Anh" IsOn="True"/>
+                <ToggleSwitch x:Name="SmartSwitchToggle" Header="Tự nhớ trạng thái Anh/Việt theo từng ứng dụng (Smart Switch)" IsOn="True"/>
+                <ToggleSwitch x:Name="BrowserFixToggle" Header="Sửa lỗi gợi ý thanh địa chỉ Chrome, Edge, Google Search" IsOn="True"/>
+                <ToggleSwitch x:Name="MacrosToggle" Header="Bật gõ tắt (Macros)" IsOn="True"/>
+                <ToggleSwitch x:Name="StartupToggle" Header="Khởi động cùng Windows 11" IsOn="False"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+            <Button x:Name="SaveAndCloseButton" Content="Lưu &amp; Đóng" Style="{StaticResource AccentButtonStyle}"/>
+        </StackPanel>
+    </Grid>
+</Window>

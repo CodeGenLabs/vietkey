@@ -1,12 +1,282 @@
 {
   "$schema": "forge/derived/v1",
   "data": {
-    "covers_index": {},
-    "files": {},
-    "tagged_tests": 0,
-    "total_tests": 0
+    "covers_index": {
+      "REQ-os-1": [
+        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::ProcessKeyDown_TransformsVietnameseAndDispatchesSingleBatch_WhileIgnoringInjectedKeys",
+        "tests/VietKey.Core.Tests/Injection/InputBatchBuilderTests.cs::BuildBatch_ProducesAtomicBackspacesAndUnicodeKeyEvents_AndIgnoresInjectedEvents",
+        "tests/VietKey.Core.Tests/Injection/InputBatchBuilderTests.cs::IsNavigationOrResetKey_DetectsNavigationAndModifierShortcuts"
+      ],
+      "REQ-os-2": [
+        "tests/VietKey.Core.Tests/Injection/AppCompatibilityDetectorTests.cs::BuildBatch_ChromiumPrependsAutocompleteFix_WhileVsCodeTeamsWordEmitDirectBatch",
+        "tests/VietKey.Core.Tests/Injection/AppCompatibilityDetectorTests.cs::ResolveForWindow_CachesHwndAndClassifiesChromiumElectronAndOffice"
+      ],
+      "REQ-os-3": [
+        "tests/VietKey.Core.Tests/Injection/SmartSwitchTrackerTests.cs::OnForegroundChanged_RestoresRememberedLanguagePerExecutable_AndClearsBuffer"
+      ],
+      "REQ-settings-1": [
+        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance"
+      ],
+      "REQ-settings-2": [
+        "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::ConfigReloadCoordinator_WhenSignaled_ReloadsUpdatedConfigWithin50Ms",
+        "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::Load_WhenFileContainsCorruptedJson_FallsBackToSafeDefaults",
+        "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::Load_WhenFileDoesNotExist_ReturnsAndWritesDefaultConfig",
+        "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::SaveAndLoad_RoundTripsConfigurationAndMacros"
+      ],
+      "REQ-settings-3": [
+        "tests/VietKey.Core.Tests/UI/SettingsViewModelTests.cs::OnDemandLauncherAndWindowClose_SpawnsUiFromTrayMenuAndTerminatesProcessOnClose",
+        "tests/VietKey.Core.Tests/UI/SettingsViewModelTests.cs::SaveAndMacroEditor_PersistsConfigSignalsLiveReloadAndUpdatesStartupRegistry"
+      ],
+      "REQ-typing-1": [
+        "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs::DoubleModifierKeyUndo_RevertsAndSuppressesFurtherTransformInSyllable",
+        "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs::Telex_BasicVowelsCrossbarDAndTones_ComposeCorrectly",
+        "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs::Telex_ComposesTiengAndComputesMinimalDiff",
+        "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs::Vni_ComposesVowelsCrossbarDAndTones"
+      ],
+      "REQ-typing-2": [
+        "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs::FreeMarkingAndDynamicToneRepositioning_WorksAcrossSyllable",
+        "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs::TonePlacement_ModernVsClassic_PlacesToneOnExpectedVowel"
+      ],
+      "REQ-typing-3": [
+        "tests/VietKey.Core.Tests/Typing/VietnameseSpellCheckerTests.cs::AutoRestoreEnglishAndInvalidPhonotactics_RestoresRawKeys",
+        "tests/VietKey.Core.Tests/Typing/VietnameseSpellCheckerTests.cs::ValidVietnameseSyllables_ArePreservedWhenSpellCheckEnabled"
+      ],
+      "REQ-typing-4": [
+        "tests/VietKey.Core.Tests/Typing/MacroTableTests.cs::WordBoundary_WhenMacroDoesNotMatchOrDisabled_EmitsNormalText",
+        "tests/VietKey.Core.Tests/Typing/MacroTableTests.cs::WordBoundary_WhenMacroMatchesOnSpaceOrEnter_ExpandsTriggerText"
+      ]
+    },
+    "files": {
+      "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs": {
+        "language": "csharp",
+        "tests": [
+          {
+            "covers": [
+              "REQ-settings-2"
+            ],
+            "line": 16,
+            "name": "Load_WhenFileDoesNotExist_ReturnsAndWritesDefaultConfig"
+          },
+          {
+            "covers": [
+              "REQ-settings-2"
+            ],
+            "line": 36,
+            "name": "Load_WhenFileContainsCorruptedJson_FallsBackToSafeDefaults"
+          },
+          {
+            "covers": [
+              "REQ-settings-2"
+            ],
+            "line": 53,
+            "name": "SaveAndLoad_RoundTripsConfigurationAndMacros"
+          },
+          {
+            "covers": [
+              "REQ-settings-2"
+            ],
+            "line": 82,
+            "name": "ConfigReloadCoordinator_WhenSignaled_ReloadsUpdatedConfigWithin50Ms"
+          },
+          {
+            "covers": [],
+            "line": 101,
+            "name": "Dispose"
+          }
+        ],
+        "untagged": 1
+      },
+      "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs": {
+        "language": "csharp",
+        "tests": [
+          {
+            "covers": [
+              "REQ-os-1"
+            ],
+            "line": 12,
+            "name": "ProcessKeyDown_TransformsVietnameseAndDispatchesSingleBatch_WhileIgnoringInjectedKeys"
+          },
+          {
+            "covers": [
+              "REQ-settings-1"
+            ],
+            "line": 52,
+            "name": "SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance"
+          }
+        ],
+        "untagged": 0
+      },
+      "tests/VietKey.Core.Tests/Injection/AppCompatibilityDetectorTests.cs": {
+        "language": "csharp",
+        "tests": [
+          {
+            "covers": [
+              "REQ-os-2"
+            ],
+            "line": 10,
+            "name": "ResolveForWindow_CachesHwndAndClassifiesChromiumElectronAndOffice"
+          },
+          {
+            "covers": [
+              "REQ-os-2"
+            ],
+            "line": 48,
+            "name": "BuildBatch_ChromiumPrependsAutocompleteFix_WhileVsCodeTeamsWordEmitDirectBatch"
+          }
+        ],
+        "untagged": 0
+      },
+      "tests/VietKey.Core.Tests/Injection/InputBatchBuilderTests.cs": {
+        "language": "csharp",
+        "tests": [
+          {
+            "covers": [
+              "REQ-os-1"
+            ],
+            "line": 10,
+            "name": "BuildBatch_ProducesAtomicBackspacesAndUnicodeKeyEvents_AndIgnoresInjectedEvents"
+          },
+          {
+            "covers": [
+              "REQ-os-1"
+            ],
+            "line": 52,
+            "name": "IsNavigationOrResetKey_DetectsNavigationAndModifierShortcuts"
+          }
+        ],
+        "untagged": 0
+      },
+      "tests/VietKey.Core.Tests/Injection/SmartSwitchTrackerTests.cs": {
+        "language": "csharp",
+        "tests": [
+          {
+            "covers": [
+              "REQ-os-3"
+            ],
+            "line": 9,
+            "name": "OnForegroundChanged_RestoresRememberedLanguagePerExecutable_AndClearsBuffer"
+          }
+        ],
+        "untagged": 0
+      },
+      "tests/VietKey.Core.Tests/Typing/MacroTableTests.cs": {
+        "language": "csharp",
+        "tests": [
+          {
+            "covers": [
+              "REQ-typing-4"
+            ],
+            "line": 35,
+            "name": "WordBoundary_WhenMacroMatchesOnSpaceOrEnter_ExpandsTriggerText"
+          },
+          {
+            "covers": [
+              "REQ-typing-4"
+            ],
+            "line": 54,
+            "name": "WordBoundary_WhenMacroDoesNotMatchOrDisabled_EmitsNormalText"
+          }
+        ],
+        "untagged": 0
+      },
+      "tests/VietKey.Core.Tests/Typing/VietnameseSpellCheckerTests.cs": {
+        "language": "csharp",
+        "tests": [
+          {
+            "covers": [
+              "REQ-typing-3"
+            ],
+            "line": 32,
+            "name": "AutoRestoreEnglishAndInvalidPhonotactics_RestoresRawKeys"
+          },
+          {
+            "covers": [
+              "REQ-typing-3"
+            ],
+            "line": 55,
+            "name": "ValidVietnameseSyllables_ArePreservedWhenSpellCheckEnabled"
+          }
+        ],
+        "untagged": 0
+      },
+      "tests/VietKey.Core.Tests/Typing/VietnameseTransformerTests.cs": {
+        "language": "csharp",
+        "tests": [
+          {
+            "covers": [
+              "REQ-typing-1"
+            ],
+            "line": 52,
+            "name": "Telex_ComposesTiengAndComputesMinimalDiff"
+          },
+          {
+            "covers": [
+              "REQ-typing-1"
+            ],
+            "line": 63,
+            "name": "Telex_BasicVowelsCrossbarDAndTones_ComposeCorrectly"
+          },
+          {
+            "covers": [
+              "REQ-typing-1"
+            ],
+            "line": 88,
+            "name": "Vni_ComposesVowelsCrossbarDAndTones"
+          },
+          {
+            "covers": [
+              "REQ-typing-1"
+            ],
+            "line": 105,
+            "name": "DoubleModifierKeyUndo_RevertsAndSuppressesFurtherTransformInSyllable"
+          },
+          {
+            "covers": [
+              "REQ-typing-2"
+            ],
+            "line": 130,
+            "name": "FreeMarkingAndDynamicToneRepositioning_WorksAcrossSyllable"
+          },
+          {
+            "covers": [
+              "REQ-typing-2"
+            ],
+            "line": 155,
+            "name": "TonePlacement_ModernVsClassic_PlacesToneOnExpectedVowel"
+          }
+        ],
+        "untagged": 0
+      },
+      "tests/VietKey.Core.Tests/UI/SettingsViewModelTests.cs": {
+        "language": "csharp",
+        "tests": [
+          {
+            "covers": [
+              "REQ-settings-3"
+            ],
+            "line": 17,
+            "name": "SaveAndMacroEditor_PersistsConfigSignalsLiveReloadAndUpdatesStartupRegistry"
+          },
+          {
+            "covers": [
+              "REQ-settings-3"
+            ],
+            "line": 61,
+            "name": "OnDemandLauncherAndWindowClose_SpawnsUiFromTrayMenuAndTerminatesProcessOnClose"
+          },
+          {
+            "covers": [],
+            "line": 88,
+            "name": "Dispose"
+          }
+        ],
+        "untagged": 1
+      }
+    },
+    "tagged_tests": 23,
+    "total_tests": 25
   },
-  "generated_from_commit": "e59bd9be3e707d99534416c01bbd683e63fe2c1c",
+  "generated_from_commit": "4a4b927e2db434344b7f630b4aa3f21c0e064945",
   "generator": "forge sync derived",
   "tool": "forge"
 }
