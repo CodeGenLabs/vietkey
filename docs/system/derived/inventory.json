@@ -3,33 +3,37 @@
   "data": {
     "by_language": {
       "csharp": {
-        "files": 33,
-        "lines": 3137
+        "files": 34,
+        "lines": 3920
       },
       "css": {
         "files": 2,
         "lines": 448
       },
+      "json": {
+        "files": 2,
+        "lines": 15
+      },
       "markdown": {
-        "files": 40,
-        "lines": 4141
+        "files": 43,
+        "lines": 4227
       },
       "other": {
         "files": 7,
-        "lines": 125
+        "lines": 310
       },
       "typescript": {
         "files": 1,
         "lines": 4773
       },
       "yaml": {
-        "files": 4,
-        "lines": 244
+        "files": 5,
+        "lines": 248
       }
     },
     "entry_points": [],
-    "files_considered": 87,
-    "files_tracked": 87,
+    "files_considered": 94,
+    "files_tracked": 94,
     "stack": {},
     "test_files": [
       "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs",
@@ -44,7 +48,7 @@
       "tests/VietKey.Core.Tests/VietKey.Core.Tests.csproj"
     ]
   },
-  "generated_from_commit": "6a729ef3df968234b3c482e48e0d0bd6528055ff",
+  "generated_from_commit": "fc4b99ab55493bd85e69364b3fc829855de39d08",
   "generator": "forge sync derived",
   "tool": "forge"
 }

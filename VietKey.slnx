@@ -1,8 +1,8 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="src/VietKey.Core/VietKey.Core.csproj" />
-    <Project Path="src/VietKey.Engine/VietKey.Engine.csproj" />
     <Project Path="src/VietKey.UI/VietKey.UI.csproj" />
+    <Project Path="src/VietKey.Engine/VietKey.Engine.csproj" />
+    <Project Path="src/VietKey.Core/VietKey.Core.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/VietKey.Core.Tests/VietKey.Core.Tests.csproj" />

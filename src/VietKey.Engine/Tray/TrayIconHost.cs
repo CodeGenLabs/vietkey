@@ -11,13 +11,18 @@ public sealed class TrayIconHost : IDisposable
     public const int CmdOpenSettings = 1004;
     public const int CmdExit = 1005;
 
+    public const uint WM_APP_TRAY = 0x8001;
+    public const int WM_LBUTTONUP = 0x0202;
+    public const int WM_LBUTTONDBLCLK = 0x0203;
+    public const int WM_RBUTTONUP = 0x0205;
+    public const int WM_CONTEXTMENU = 0x007B;
+
     private const uint NIM_ADD = 0x00000000;
     private const uint NIM_MODIFY = 0x00000001;
     private const uint NIM_DELETE = 0x00000002;
     private const uint NIF_MESSAGE = 0x00000001;
     private const uint NIF_ICON = 0x00000002;
     private const uint NIF_TIP = 0x00000004;
-    private const uint WM_APP_TRAY = 0x8001;
 
     private nint _hwnd;
     private bool _iconAdded;
@@ -28,6 +33,7 @@ public sealed class TrayIconHost : IDisposable
     public event Action? ToggleRequested;
     public event Action<InputMethod>? InputMethodChangeRequested;
     public event Action? OpenSettingsRequested;
+    public event Action? ContextMenuRequested;
     public event Action? ExitRequested;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -72,6 +78,23 @@ public sealed class TrayIconHost : IDisposable
         {
             var data = CreateIconData();
             Shell_NotifyIconW(NIM_MODIFY, ref data);
+        }
+    }
+
+    public void HandleMouseMessage(int mouseMessage)
+    {
+        switch (mouseMessage)
+        {
+            case WM_LBUTTONUP:
+                ToggleRequested?.Invoke();
+                break;
+            case WM_LBUTTONDBLCLK:
+                OpenSettingsRequested?.Invoke();
+                break;
+            case WM_RBUTTONUP:
+            case WM_CONTEXTMENU:
+                ContextMenuRequested?.Invoke();
+                break;
         }
     }
 

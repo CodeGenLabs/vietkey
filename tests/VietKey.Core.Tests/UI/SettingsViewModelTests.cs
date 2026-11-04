@@ -81,9 +81,31 @@ public sealed class SettingsViewModelTests : IDisposable
         bool exitCalled = false;
         var app = new VietKey.UI.App(store, eventName, () => exitCalled = true);
 
-        app.MainWindow.CloseAndFlush();
+        app.MainWindow.ApplyUiSelections(
+            vietnameseEnabled: false,
+            inputMethod: InputMethod.Vni,
+            toggleHotkey: ToggleHotkey.CtrlShift,
+            modernTone: false,
+            spellCheck: true,
+            autoRestoreEnglish: false,
+            smartSwitch: false,
+            browserAutocompleteFix: true,
+            enableMacros: false,
+            startWithWindows: true);
+
+        app.MainWindow.CloseAndFlush(@"C:\VietKey\VietKey.Engine.exe");
         Assert.True(app.HasExited);
         Assert.True(exitCalled);
+
+        var savedConfig = store.Load(out _);
+        Assert.False(savedConfig.VietnameseEnabled);
+        Assert.Equal(InputMethod.Vni, savedConfig.InputMethod);
+        Assert.Equal(ToggleHotkey.CtrlShift, savedConfig.ToggleHotkey);
+        Assert.False(savedConfig.ModernTone);
+        Assert.False(savedConfig.AutoRestoreEnglish);
+        Assert.False(savedConfig.SmartSwitch);
+        Assert.False(savedConfig.EnableMacros);
+        Assert.True(savedConfig.StartWithWindows);
     }
 
     public void Dispose()

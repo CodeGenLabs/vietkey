@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "VietKey.Engine (Tray + UI)": {
+      "commandName": "Project",
+      "commandLineArgs": "--show-ui"
+    }
+  }
+}
