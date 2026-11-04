@@ -250,12 +250,10 @@ public partial class DesktopSettingsWindow : Window
         string iconUri = vietnameseEnabled
             ? "pack://application:,,,/Assets/icon-v.png"
             : "pack://application:,,,/Assets/icon-e.png";
-        string windowIconUri = vietnameseEnabled
-            ? "pack://application:,,,/Assets/icon-v.ico"
-            : "pack://application:,,,/Assets/icon-e.ico";
 
-        ActiveModeIconImage.Source = new BitmapImage(new Uri(iconUri, UriKind.Absolute));
-        Icon = new BitmapImage(new Uri(windowIconUri, UriKind.Absolute));
+        var badgeBitmap = new BitmapImage(new Uri(iconUri, UriKind.Absolute));
+        ActiveModeIconImage.Source = badgeBitmap;
+        Icon = badgeBitmap;
 
         StatusTitleText.Text = vietnameseEnabled
             ? "Đang bật chế độ Tiếng Việt (V)"

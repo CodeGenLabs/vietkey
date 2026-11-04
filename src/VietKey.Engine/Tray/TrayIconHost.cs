@@ -144,12 +144,12 @@ public sealed class TrayIconHost : IDisposable
 
         if (File.Exists(iconVPath))
         {
-            _customIconV = LoadImageW(0, iconVPath, IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
+            _customIconV = LoadImageW(0, iconVPath, IMAGE_ICON, 64, 64, LR_LOADFROMFILE);
         }
 
         if (File.Exists(iconEPath))
         {
-            _customIconE = LoadImageW(0, iconEPath, IMAGE_ICON, 32, 32, LR_LOADFROMFILE);
+            _customIconE = LoadImageW(0, iconEPath, IMAGE_ICON, 64, 64, LR_LOADFROMFILE);
         }
     }
 

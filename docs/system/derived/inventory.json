@@ -4,7 +4,7 @@
     "by_language": {
       "csharp": {
         "files": 34,
-        "lines": 4238
+        "lines": 4236
       },
       "css": {
         "files": 2,
@@ -20,7 +20,7 @@
       },
       "other": {
         "files": 12,
-        "lines": 5832
+        "lines": 5144
       },
       "typescript": {
         "files": 1,
@@ -48,7 +48,7 @@
       "tests/VietKey.Core.Tests/VietKey.Core.Tests.csproj"
     ]
   },
-  "generated_from_commit": "1953ec24f351b2722e0fdc0fb58afcbd6dc50c48",
+  "generated_from_commit": "a206fc6cf6d32aca88d33452d9c5c613b866e82a",
   "generator": "forge sync derived",
   "tool": "forge"
 }
