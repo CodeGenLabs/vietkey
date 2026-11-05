@@ -8,6 +8,8 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
+    <AssemblyName>VietKey</AssemblyName>
+    <RootNamespace>VietKey.UI</RootNamespace>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>..\..\assets\app-logo.ico</ApplicationIcon>
     <ImplicitUsings>enable</ImplicitUsings>

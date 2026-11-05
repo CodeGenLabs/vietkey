@@ -4,7 +4,7 @@
     "by_language": {
       "csharp": {
         "files": 35,
-        "lines": 5686
+        "lines": 5691
       },
       "css": {
         "files": 2,
@@ -15,25 +15,25 @@
         "lines": 15
       },
       "markdown": {
-        "files": 90,
-        "lines": 5126
+        "files": 94,
+        "lines": 5159
       },
       "other": {
         "files": 15,
-        "lines": 4675
+        "lines": 4677
       },
       "typescript": {
         "files": 1,
         "lines": 4773
       },
       "yaml": {
-        "files": 18,
-        "lines": 302
+        "files": 19,
+        "lines": 306
       }
     },
     "entry_points": [],
-    "files_considered": 163,
-    "files_tracked": 163,
+    "files_considered": 168,
+    "files_tracked": 168,
     "stack": {},
     "test_files": [
       "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs",
@@ -48,7 +48,7 @@
       "tests/VietKey.Core.Tests/VietKey.Core.Tests.csproj"
     ]
   },
-  "generated_from_commit": "156dcf686ce4e920b9b2da6eb83e4ec75e87a69d",
+  "generated_from_commit": "2124b4e969106128e7ddd3f28d963b3c061dcfe3",
   "generator": "forge sync derived",
   "tool": "forge"
 }

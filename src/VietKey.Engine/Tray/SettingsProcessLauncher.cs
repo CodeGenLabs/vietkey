@@ -4,6 +4,8 @@ namespace VietKey.Engine.Tray;
 
 public sealed class SettingsProcessLauncher
 {
+    public const string MainExecutableFileName = "VietKey.exe";
+
     private readonly Func<string, bool> _processStarter;
     public string UiExecutablePath { get; }
 
@@ -17,7 +19,7 @@ public sealed class SettingsProcessLauncher
 
     public static string ResolveDefaultUiExecutablePath()
     {
-        string coLocated = Path.Combine(AppContext.BaseDirectory, "VietKey.UI.exe");
+        string coLocated = Path.Combine(AppContext.BaseDirectory, MainExecutableFileName);
         if (File.Exists(coLocated))
         {
             return coLocated;
@@ -30,7 +32,7 @@ public sealed class SettingsProcessLauncher
         string? srcRoot = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(baseDir))));
         if (!string.IsNullOrEmpty(srcRoot) && !string.IsNullOrEmpty(configDir) && !string.IsNullOrEmpty(tfmDir))
         {
-            string siblingCandidate = Path.Combine(srcRoot, "VietKey.UI", "bin", configDir, tfmDir, "VietKey.UI.exe");
+            string siblingCandidate = Path.Combine(srcRoot, "VietKey.UI", "bin", configDir, tfmDir, MainExecutableFileName);
             if (File.Exists(siblingCandidate))
             {
                 return siblingCandidate;

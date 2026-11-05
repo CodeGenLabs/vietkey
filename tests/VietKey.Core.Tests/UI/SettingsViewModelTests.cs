@@ -82,9 +82,12 @@ public sealed class SettingsViewModelTests : IDisposable
     [Fact]
     public void OnDemandLauncherAndWindowClose_SpawnsUiFromTrayMenuAndTerminatesProcessOnClose()
     {
+        Assert.Equal("VietKey.exe", VietKey.Engine.Tray.SettingsProcessLauncher.MainExecutableFileName);
+        Assert.EndsWith("VietKey.exe", VietKey.Engine.Tray.SettingsProcessLauncher.ResolveDefaultUiExecutablePath(), StringComparison.OrdinalIgnoreCase);
+
         string? launchedPath = null;
         var launcher = new VietKey.Engine.Tray.SettingsProcessLauncher(
-            @"C:\VietKey\VietKey.UI.exe",
+            @"C:\VietKey\VietKey.exe",
             path =>
             {
                 launchedPath = path;
@@ -95,7 +98,7 @@ public sealed class SettingsViewModelTests : IDisposable
         tray.OpenSettingsRequested += () => launcher.LaunchSettingsUi();
 
         tray.HandleMenuCommand(VietKey.Engine.Tray.TrayIconHost.CmdOpenSettings);
-        Assert.Equal(@"C:\VietKey\VietKey.UI.exe", launchedPath);
+        Assert.Equal(@"C:\VietKey\VietKey.exe", launchedPath);
 
         var store = new ConfigStore(_tempDir);
         string eventName = @"Local\VietKeyUICloseReload_" + Guid.NewGuid().ToString("N");

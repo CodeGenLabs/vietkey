@@ -38,7 +38,7 @@ public sealed class SmartSwitchTracker
     public void RecordUserToggle(string executableName, bool vietnameseEnabled)
     {
         string normalized = Path.GetFileName(executableName ?? string.Empty).ToLowerInvariant();
-        if (!string.IsNullOrEmpty(normalized) && normalized is not ("explorer.exe" or "vietkey.engine.exe" or "vietkey.ui.exe"))
+        if (!string.IsNullOrEmpty(normalized) && normalized is not ("explorer.exe" or "vietkey.exe" or "vietkey.engine.exe" or "vietkey.ui.exe"))
         {
             CurrentExecutable = normalized;
             _appLanguageMap[normalized] = vietnameseEnabled;
