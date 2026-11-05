@@ -14,10 +14,6 @@
 
   <ItemGroup>
     <EmbeddedResource Include="..\..\assets\EVFont.ttf" LogicalName="EVFont.ttf" />
-    <None Include="..\..\assets\EVFont.ttf" Link="Assets\EVFont.ttf" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\..\assets\app-logo.ico" Link="Assets\app-logo.ico" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\..\assets\icon-v.ico" Link="Assets\icon-v.ico" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\..\assets\icon-e.ico" Link="Assets\icon-e.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

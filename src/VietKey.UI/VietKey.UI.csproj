@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\VietKey.Core\VietKey.Core.csproj" />
-    <ProjectReference Include="..\VietKey.Engine\VietKey.Engine.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -319,7 +319,7 @@
       "tests_total": 29
     }
   },
-  "generated_from_commit": "9a07bf8481f273d70c9daf27e91971f2e62194d3",
+  "generated_from_commit": "7546535ec0db8ce0629169a95c5753c344bbf9f7",
   "generator": "forge sync derived",
   "tool": "forge"
 }
