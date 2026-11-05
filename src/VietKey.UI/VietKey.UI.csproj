@@ -9,13 +9,15 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>..\..\assets\icon-v.ico</ApplicationIcon>
+    <ApplicationIcon>..\..\assets\app-logo.ico</ApplicationIcon>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <Resource Include="..\..\assets\logo-banner.png" Link="Assets\logo-banner.png" />
+    <Resource Include="..\..\assets\app-logo.png" Link="Assets\app-logo.png" />
+    <Resource Include="..\..\assets\app-logo.ico" Link="Assets\app-logo.ico" />
     <Resource Include="..\..\assets\icon-v.png" Link="Assets\icon-v.png" />
     <Resource Include="..\..\assets\icon-e.png" Link="Assets\icon-e.png" />
     <Resource Include="..\..\assets\icon-v.ico" Link="Assets\icon-v.ico" />

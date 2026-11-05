@@ -72,6 +72,7 @@ public partial class DesktopSettingsWindow : Window
         _controller = controller;
         _engineExecutablePath = engineExecutablePath;
         InitializeComponent();
+        Icon = new BitmapImage(new Uri("pack://application:,,,/Assets/app-logo.png", UriKind.Absolute));
         LoadFromViewModel();
         WireEvents();
 
@@ -310,7 +311,6 @@ public partial class DesktopSettingsWindow : Window
 
         var badgeBitmap = new BitmapImage(new Uri(iconUri, UriKind.Absolute));
         ActiveModeIconImage.Source = badgeBitmap;
-        Icon = badgeBitmap;
 
         StatusTitleText.Text = vietnameseEnabled
             ? "Đang bật chế độ Tiếng Việt (V)"

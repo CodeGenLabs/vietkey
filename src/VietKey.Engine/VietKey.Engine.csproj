@@ -7,7 +7,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <ApplicationIcon>..\..\assets\icon-v.ico</ApplicationIcon>
+    <ApplicationIcon>..\..\assets\app-logo.ico</ApplicationIcon>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -15,6 +15,7 @@
   <ItemGroup>
     <EmbeddedResource Include="..\..\assets\EVFont.ttf" LogicalName="EVFont.ttf" />
     <None Include="..\..\assets\EVFont.ttf" Link="Assets\EVFont.ttf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\assets\app-logo.ico" Link="Assets\app-logo.ico" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\assets\icon-v.ico" Link="Assets\icon-v.ico" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\..\assets\icon-e.ico" Link="Assets\icon-e.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
