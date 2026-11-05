@@ -15,25 +15,25 @@
         "lines": 15
       },
       "markdown": {
-        "files": 74,
-        "lines": 4958
+        "files": 78,
+        "lines": 4995
       },
       "other": {
         "files": 15,
-        "lines": 4587
+        "lines": 4680
       },
       "typescript": {
         "files": 1,
         "lines": 4773
       },
       "yaml": {
-        "files": 14,
-        "lines": 286
+        "files": 15,
+        "lines": 290
       }
     },
     "entry_points": [],
-    "files_considered": 143,
-    "files_tracked": 143,
+    "files_considered": 148,
+    "files_tracked": 148,
     "stack": {},
     "test_files": [
       "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs",
@@ -48,7 +48,7 @@
       "tests/VietKey.Core.Tests/VietKey.Core.Tests.csproj"
     ]
   },
-  "generated_from_commit": "b69c61710464b06bf22c28d456584cc1932cd766",
+  "generated_from_commit": "372ec69996055e5d6b8cccec914aca61d15c2b6f",
   "generator": "forge sync derived",
   "tool": "forge"
 }
