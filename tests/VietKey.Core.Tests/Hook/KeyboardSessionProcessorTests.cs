@@ -50,25 +50,64 @@ public sealed class KeyboardSessionProcessorTests
 
     // @covers REQ-os-1
     [Fact]
-    public void ProcessKeyDown_WhenJapaneseOrCjkImeIsActive_BypassesVietnameseTransformationForKanji()
+    public void ProcessKeyDown_WhenJapaneseOrCjkImeIsActive_BypassesHiraganaButAllowsHalfWidthAlphanumeric()
     {
-        Assert.True(NativeMethods.IsCjkKeyboardLayout(0x04110411)); // Japanese (0x0411)
-        Assert.True(NativeMethods.IsCjkKeyboardLayout(0x04120412)); // Korean (0x0412)
-        Assert.True(NativeMethods.IsCjkKeyboardLayout(0x08040804)); // Chinese Simplified (0x0804)
+        nint japaneseHkl = 0x04110411;
+        Assert.True(NativeMethods.IsCjkKeyboardLayout(japaneseHkl)); // Japanese (0x0411)
+        Assert.True(NativeMethods.IsCjkKeyboardLayout(0x04120412));  // Korean (0x0412)
+        Assert.True(NativeMethods.IsCjkKeyboardLayout(0x08040804));  // Chinese Simplified (0x0804)
         Assert.False(NativeMethods.IsCjkKeyboardLayout(0x04090409)); // English US (0x0409)
         Assert.False(NativeMethods.IsCjkKeyboardLayout(0x042A042A)); // Vietnamese (0x042A)
 
+        // Verify Japanese IME modes:
+        // 1. Hiragana ('あ'): open=1, conv=IME_CMODE_NATIVE | IME_CMODE_FULLSHAPE | IME_CMODE_ROMAN (0x19) -> bypass (true)
+        Assert.True(NativeMethods.IsCjkConversionActive(
+            japaneseHkl,
+            imeOpenStatus: 1,
+            imeConversionMode: NativeMethods.IME_CMODE_NATIVE | NativeMethods.IME_CMODE_FULLSHAPE | NativeMethods.IME_CMODE_ROMAN));
+
+        // 2. Full-width Katakana ('カ'): open=1, conv=0x1B -> bypass (true)
+        Assert.True(NativeMethods.IsCjkConversionActive(
+            japaneseHkl,
+            imeOpenStatus: 1,
+            imeConversionMode: NativeMethods.IME_CMODE_NATIVE | NativeMethods.IME_CMODE_KATAKANA | NativeMethods.IME_CMODE_FULLSHAPE));
+
+        // 3. Full-width Alphanumeric ('Ａ'): open=1, conv=IME_CMODE_FULLSHAPE (0x08) -> bypass (true)
+        Assert.True(NativeMethods.IsCjkConversionActive(
+            japaneseHkl,
+            imeOpenStatus: 1,
+            imeConversionMode: NativeMethods.IME_CMODE_FULLSHAPE));
+
+        // 4. Half-width Katakana ('ｶ'): open=1, conv=IME_CMODE_NATIVE | IME_CMODE_KATAKANA (0x03) -> bypass (true)
+        Assert.True(NativeMethods.IsCjkConversionActive(
+            japaneseHkl,
+            imeOpenStatus: 1,
+            imeConversionMode: NativeMethods.IME_CMODE_NATIVE | NativeMethods.IME_CMODE_KATAKANA));
+
+        // 5. Half-width Alphanumeric ('A' / Direct Input): open=0 -> allow Vietnamese (false)
+        Assert.False(NativeMethods.IsCjkConversionActive(
+            japaneseHkl,
+            imeOpenStatus: 0,
+            imeConversionMode: 0));
+
+        // 6. Half-width Alphanumeric ('A' with open=1, conv=IME_CMODE_ROMAN 0x10 only) -> allow Vietnamese (false)
+        Assert.False(NativeMethods.IsCjkConversionActive(
+            japaneseHkl,
+            imeOpenStatus: 1,
+            imeConversionMode: NativeMethods.IME_CMODE_ROMAN));
+
         var dispatchedBatches = new List<SimulatedKeyEvent[]>();
-        bool isJapaneseImeActive = true;
+        nint currentImeOpenStatus = 1;
+        nint currentImeConvMode = NativeMethods.IME_CMODE_NATIVE | NativeMethods.IME_CMODE_FULLSHAPE | NativeMethods.IME_CMODE_ROMAN;
 
         var processor = new KeyboardSessionProcessor(
             AppConfig.Default,
             new Dictionary<string, string>(),
             _ => "chrome.exe",
             batch => dispatchedBatches.Add(batch),
-            _ => isJapaneseImeActive);
+            _ => NativeMethods.IsCjkConversionActive(japaneseHkl, currentImeOpenStatus, currentImeConvMode));
 
-        // Type "kanji" (K, A, N, J, I) while Japanese IME is active -> zero suppression, zero batches
+        // Type "kanji" (K, A, N, J, I) while Japanese Hiragana ('あ') is active -> zero suppression, zero batches
         foreach (char key in "KANJI")
         {
             bool suppressed = processor.ProcessKeyDown(key, 0, false, false, false, false, false, 10);
@@ -76,8 +115,8 @@ public sealed class KeyboardSessionProcessorTests
         }
         Assert.Empty(dispatchedBatches);
 
-        // Switch back to English layout (0x0409) -> typing "kanj" transforms to "kạn"
-        isJapaneseImeActive = false;
+        // Switch Japanese IME to Half-width Alphanumeric ('A', open=0) -> typing "kanj" transforms to "kạn"
+        currentImeOpenStatus = 0;
         Assert.False(processor.ProcessKeyDown('K', 0, false, false, false, false, false, 10));
         Assert.False(processor.ProcessKeyDown('A', 0, false, false, false, false, false, 10));
         Assert.False(processor.ProcessKeyDown('N', 0, false, false, false, false, false, 10));

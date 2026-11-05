@@ -12,6 +12,19 @@ public static class NativeMethods
     public const int WM_SYSKEYDOWN = 0x0104;
     public const int WM_SYSKEYUP = 0x0105;
 
+    public const uint WM_IME_CONTROL = 0x0283;
+    public const nint IMC_GETCONVERSIONMODE = 0x0001;
+    public const nint IMC_GETOPENSTATUS = 0x0005;
+    public const uint SMTO_BLOCK = 0x0001;
+    public const uint SMTO_ABORTIFHUNG = 0x0002;
+
+    public const int IME_CMODE_ALPHANUMERIC = 0x0000;
+    public const int IME_CMODE_NATIVE = 0x0001;
+    public const int IME_CMODE_KATAKANA = 0x0002;
+    public const int IME_CMODE_FULLSHAPE = 0x0008;
+    public const int IME_CMODE_ROMAN = 0x0010;
+    public const int ImeNonHalfWidthAlphanumericMask = IME_CMODE_NATIVE | IME_CMODE_KATAKANA | IME_CMODE_FULLSHAPE;
+
     public const uint INPUT_KEYBOARD = 1;
     public const uint KEYEVENTF_KEYUP = 0x0002;
     public const uint KEYEVENTF_UNICODE = 0x0004;
@@ -129,6 +142,19 @@ public static class NativeMethods
     [DllImport("user32.dll")]
     public static extern short GetKeyState(int nVirtKey);
 
+    [DllImport("imm32.dll")]
+    public static extern nint ImmGetDefaultIMEWnd(nint hWnd);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern nint SendMessageTimeoutW(
+        nint hWnd,
+        uint msg,
+        nint wParam,
+        nint lParam,
+        uint fuFlags,
+        uint uTimeout,
+        out nint lpdwResult);
+
     [DllImport("kernel32.dll", SetLastError = true)]
     public static extern nint OpenProcess(uint dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, uint dwProcessId);
 
@@ -148,6 +174,30 @@ public static class NativeMethods
         return primaryLang is 0x11 or 0x12 or 0x04;
     }
 
+    public static bool IsCjkConversionActive(nint hkl, nint imeOpenStatus, nint imeConversionMode = 0)
+    {
+        if (!IsCjkKeyboardLayout(hkl))
+        {
+            return false;
+        }
+
+        // When IME open status is 0 (Closed), the CJK IME is in Half-width Alphanumeric ('A' / Direct Input) mode.
+        if (imeOpenStatus == 0)
+        {
+            return false;
+        }
+
+        // When IME is open and reports a non-zero conversion mode (e.g. IME_CMODE_ROMAN = 0x10)
+        // where neither Native (Hiragana/Hangul/Hanzi 0x01), Katakana (0x02), nor Full-shape (0x08) is set,
+        // it is also in Half-width Alphanumeric ('A') mode -> allow Vietnamese typing.
+        if (imeConversionMode != 0 && ((int)imeConversionMode & ImeNonHalfWidthAlphanumericMask) == 0)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public static bool IsForeignImeActive(nint foregroundHwnd)
     {
         var guiInfo = new GUITHREADINFO
@@ -157,35 +207,80 @@ public static class NativeMethods
 
         if (GetGUIThreadInfo(0, ref guiInfo))
         {
-            if (guiInfo.hwndFocus != 0)
+            if (TryQueryWindowCjkState(guiInfo.hwndFocus, out bool focusCjkActive))
             {
-                uint focusThread = GetWindowThreadProcessId(guiInfo.hwndFocus, out _);
-                if (focusThread != 0 && IsCjkKeyboardLayout(GetKeyboardLayout(focusThread)))
-                {
-                    return true;
-                }
+                return focusCjkActive;
             }
 
-            if (guiInfo.hwndActive != 0)
+            if (TryQueryWindowCjkState(guiInfo.hwndActive, out bool activeCjkActive))
             {
-                uint activeThread = GetWindowThreadProcessId(guiInfo.hwndActive, out _);
-                if (activeThread != 0 && IsCjkKeyboardLayout(GetKeyboardLayout(activeThread)))
-                {
-                    return true;
-                }
+                return activeCjkActive;
             }
         }
 
-        if (foregroundHwnd != 0)
+        if (TryQueryWindowCjkState(foregroundHwnd, out bool fgCjkActive))
         {
-            uint fgThread = GetWindowThreadProcessId(foregroundHwnd, out _);
-            if (fgThread != 0 && IsCjkKeyboardLayout(GetKeyboardLayout(fgThread)))
-            {
-                return true;
-            }
+            return fgCjkActive;
         }
 
         return false;
+    }
+
+    private static bool TryQueryWindowCjkState(nint hwnd, out bool isCjkConversionActive)
+    {
+        isCjkConversionActive = false;
+        if (hwnd == 0)
+        {
+            return false;
+        }
+
+        uint threadId = GetWindowThreadProcessId(hwnd, out _);
+        if (threadId == 0)
+        {
+            return false;
+        }
+
+        nint hkl = GetKeyboardLayout(threadId);
+        if (!IsCjkKeyboardLayout(hkl))
+        {
+            return true;
+        }
+
+        nint imeWnd = ImmGetDefaultIMEWnd(hwnd);
+        if (imeWnd == 0)
+        {
+            return false;
+        }
+
+        nint openOk = SendMessageTimeoutW(
+            imeWnd,
+            WM_IME_CONTROL,
+            IMC_GETOPENSTATUS,
+            0,
+            SMTO_ABORTIFHUNG | SMTO_BLOCK,
+            30,
+            out nint imeOpenStatus);
+
+        if (openOk == 0)
+        {
+            return false;
+        }
+
+        nint imeConversionMode = 0;
+        if (imeOpenStatus != 0)
+        {
+            _ = SendMessageTimeoutW(
+                imeWnd,
+                WM_IME_CONTROL,
+                IMC_GETCONVERSIONMODE,
+                0,
+                SMTO_ABORTIFHUNG | SMTO_BLOCK,
+                30,
+                out imeConversionMode);
+        }
+
+        isCjkConversionActive = IsCjkConversionActive(hkl, imeOpenStatus, imeConversionMode);
+        return true;
     }
 
     public static string ResolveProcessImageName(nint hwnd)

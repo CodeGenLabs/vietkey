@@ -4,7 +4,7 @@
     "covers_index": {
       "REQ-os-1": [
         "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::ProcessKeyDown_TransformsVietnameseAndDispatchesSingleBatch_WhileIgnoringInjectedKeys",
-        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::ProcessKeyDown_WhenJapaneseOrCjkImeIsActive_BypassesVietnameseTransformationForKanji",
+        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::ProcessKeyDown_WhenJapaneseOrCjkImeIsActive_BypassesHiraganaButAllowsHalfWidthAlphanumeric",
         "tests/VietKey.Core.Tests/Injection/InputBatchBuilderTests.cs::BuildBatch_ProducesAtomicBackspacesAndUnicodeKeyEvents_AndIgnoresInjectedEvents",
         "tests/VietKey.Core.Tests/Injection/InputBatchBuilderTests.cs::IsNavigationOrResetKey_DetectsNavigationAndModifierShortcuts"
       ],
@@ -112,27 +112,27 @@
               "REQ-os-1"
             ],
             "line": 52,
-            "name": "ProcessKeyDown_WhenJapaneseOrCjkImeIsActive_BypassesVietnameseTransformationForKanji"
+            "name": "ProcessKeyDown_WhenJapaneseOrCjkImeIsActive_BypassesHiraganaButAllowsHalfWidthAlphanumeric"
           },
           {
             "covers": [
               "REQ-settings-1"
             ],
-            "line": 89,
+            "line": 128,
             "name": "SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance"
           },
           {
             "covers": [
               "REQ-settings-1"
             ],
-            "line": 146,
+            "line": 185,
             "name": "CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndInterveningKeys"
           },
           {
             "covers": [
               "REQ-settings-1"
             ],
-            "line": 210,
+            "line": 249,
             "name": "SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu"
           }
         ],
@@ -308,7 +308,7 @@
     "tagged_tests": 27,
     "total_tests": 29
   },
-  "generated_from_commit": "896abed0da121f90a5f10e70f306920f04b2ab8b",
+  "generated_from_commit": "6402a13213cfbc62b9c798aa7920670cdea8c631",
   "generator": "forge sync derived",
   "tool": "forge"
 }

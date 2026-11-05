@@ -337,7 +337,22 @@ public partial class DesktopSettingsWindow : Window
         try
         {
             string iso = InputLanguageManager.Current.CurrentInputLanguage.TwoLetterISOLanguageName;
-            return iso is "ja" or "ko" or "zh";
+            if (iso is not ("ja" or "ko" or "zh"))
+            {
+                return false;
+            }
+
+            var ime = System.Windows.Input.InputMethod.Current;
+            if (ime.ImeState != InputMethodState.On)
+            {
+                return false;
+            }
+
+            var conv = ime.ImeConversionMode;
+            bool isHalfWidthAlpha = !conv.HasFlag(ImeConversionModeValues.Native)
+                && !conv.HasFlag(ImeConversionModeValues.Katakana)
+                && !conv.HasFlag(ImeConversionModeValues.FullShape);
+            return !isHalfWidthAlpha;
         }
         catch
         {
