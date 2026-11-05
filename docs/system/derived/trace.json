@@ -156,7 +156,7 @@
         "back_references": [],
         "candidate": false,
         "changes": [],
-        "defined_in": "docs/system/specs/settings-and-tray/spec.md:22",
+        "defined_in": "docs/system/specs/settings-and-tray/spec.md:26",
         "evidence": [],
         "governed_by": [],
         "governs": [],
@@ -185,7 +185,7 @@
         "changes": [
           "0008-add-hide-dialog-on-startup-option"
         ],
-        "defined_in": "docs/system/specs/settings-and-tray/spec.md:33",
+        "defined_in": "docs/system/specs/settings-and-tray/spec.md:37",
         "evidence": [],
         "governed_by": [],
         "governs": [],
@@ -318,7 +318,7 @@
       "tests_total": 28
     }
   },
-  "generated_from_commit": "503cc8e219b715265509cdaadef876d880ba70fa",
+  "generated_from_commit": "08eaca5857229c0ba9a34b25652b6a800c4fca60",
   "generator": "forge sync derived",
   "tool": "forge"
 }

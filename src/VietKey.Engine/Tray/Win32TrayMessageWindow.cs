@@ -7,6 +7,13 @@ public sealed class Win32TrayMessageWindow : IDisposable
 {
     private const uint WM_COMMAND = 0x0111;
     private const uint WM_DESTROY = 0x0002;
+    private const uint WM_SYSCOLORCHANGE = 0x0015;
+    private const uint WM_SETTINGCHANGE = 0x001A;
+    private const uint WM_TIMER = 0x0113;
+    private const uint WM_DPICHANGED = 0x02E0;
+    private const uint WM_THEMECHANGED = 0x031A;
+    private const uint WM_DWMCOLORIZATIONCOLORCHANGED = 0x0320;
+    private const nuint TimerIdThemeCheck = 1;
     private const uint MF_STRING = 0x00000000;
     private const uint MF_CHECKED = 0x00000008;
     private const uint MF_SEPARATOR = 0x00000800;
@@ -118,11 +125,22 @@ public sealed class Win32TrayMessageWindow : IDisposable
         nint hWnd,
         nint prcRect);
 
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern uint RegisterWindowMessageW(string lpString);
+
+    [DllImport("user32.dll")]
+    private static extern nuint SetTimer(nint hWnd, nuint nIDEvent, uint uElapse, nint lpTimerFunc);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool KillTimer(nint hWnd, nuint uIDEvent);
+
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
     private static extern nint GetModuleHandleW(string? lpModuleName);
 
     private readonly TrayIconHost _tray;
     private readonly WndProcDelegate _wndProcDelegate;
+    private readonly uint _taskbarCreatedMsg;
     private nint _hwnd;
 
     public nint Handle => _hwnd;
@@ -131,6 +149,7 @@ public sealed class Win32TrayMessageWindow : IDisposable
     {
         _tray = tray;
         _wndProcDelegate = WndProc;
+        _taskbarCreatedMsg = RegisterWindowMessageW("TaskbarCreated");
         _tray.ContextMenuRequested += ShowContextMenu;
         _tray.ExitRequested += () => PostQuitMessage(0);
     }
@@ -169,6 +188,7 @@ public sealed class Win32TrayMessageWindow : IDisposable
         if (_hwnd != 0)
         {
             _tray.AttachToWindow(_hwnd);
+            SetTimer(_hwnd, TimerIdThemeCheck, 1000, 0);
         }
     }
 
@@ -249,8 +269,26 @@ public sealed class Win32TrayMessageWindow : IDisposable
             return 0;
         }
 
+        if (msg == WM_SETTINGCHANGE
+            || msg == WM_DWMCOLORIZATIONCOLORCHANGED
+            || msg == WM_SYSCOLORCHANGE
+            || msg == WM_THEMECHANGED
+            || msg == WM_DPICHANGED
+            || msg == WM_TIMER)
+        {
+            _tray.RefreshThemeIfNeeded();
+            return 0;
+        }
+
+        if (_taskbarCreatedMsg != 0 && msg == _taskbarCreatedMsg)
+        {
+            _tray.AttachToWindow(hWnd);
+            return 0;
+        }
+
         if (msg == WM_DESTROY)
         {
+            KillTimer(hWnd, TimerIdThemeCheck);
             PostQuitMessage(0);
             return 0;
         }
@@ -262,6 +300,7 @@ public sealed class Win32TrayMessageWindow : IDisposable
     {
         if (_hwnd != 0)
         {
+            KillTimer(_hwnd, TimerIdThemeCheck);
             DestroyWindow(_hwnd);
             _hwnd = 0;
         }

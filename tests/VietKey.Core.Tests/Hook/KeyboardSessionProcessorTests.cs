@@ -104,8 +104,17 @@ public sealed class KeyboardSessionProcessorTests
         using var tray = new VietKey.Engine.Tray.TrayIconHost(processor.CurrentConfig);
         processor.VietnameseModeChanged += enabled => tray.UpdateState(enabled, processor.CurrentConfig.InputMethod);
 
-        nint iconHandleV = tray.ActiveIconHandle;
-        Assert.NotEqual(0, iconHandleV);
+        Assert.True(tray.RenderedIconSize >= 16);
+        tray.RefreshThemeIfNeeded(forceLightTheme: false);
+        Assert.False(tray.IsLightThemeActive);
+        nint iconVDark = tray.ActiveIconHandle;
+        Assert.NotEqual(0, iconVDark);
+
+        Assert.True(tray.RefreshThemeIfNeeded(forceLightTheme: true));
+        Assert.True(tray.IsLightThemeActive);
+        nint iconVLight = tray.ActiveIconHandle;
+        Assert.NotEqual(0, iconVLight);
+        Assert.NotEqual(iconVDark, iconVLight);
 
         // Press Alt+Z -> flips from Vietnamese (true) to English (false)
         bool handled = processor.ProcessKeyDown(
@@ -121,7 +130,15 @@ public sealed class KeyboardSessionProcessorTests
         Assert.True(handled);
         Assert.False(processor.CurrentConfig.VietnameseEnabled);
         Assert.False(tray.IsVietnameseActive);
-        Assert.NotEqual(iconHandleV, tray.ActiveIconHandle);
+        nint iconELight = tray.ActiveIconHandle;
+        Assert.NotEqual(0, iconELight);
+        Assert.NotEqual(iconVLight, iconELight);
+
+        Assert.True(tray.RefreshThemeIfNeeded(forceLightTheme: false));
+        nint iconEDark = tray.ActiveIconHandle;
+        Assert.NotEqual(0, iconEDark);
+        Assert.NotEqual(iconELight, iconEDark);
+        Assert.NotEqual(iconVDark, iconEDark);
         Assert.Contains("Tiếng Anh (E)", tray.GetTooltipText());
     }
 

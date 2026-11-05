@@ -117,14 +117,14 @@
             "covers": [
               "REQ-settings-1"
             ],
-            "line": 129,
+            "line": 146,
             "name": "CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndInterveningKeys"
           },
           {
             "covers": [
               "REQ-settings-1"
             ],
-            "line": 193,
+            "line": 210,
             "name": "SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu"
           }
         ],
@@ -300,7 +300,7 @@
     "tagged_tests": 26,
     "total_tests": 28
   },
-  "generated_from_commit": "503cc8e219b715265509cdaadef876d880ba70fa",
+  "generated_from_commit": "2e9984eb9882ef0c2cbd26d5bae9d53b0b890a69",
   "generator": "forge sync derived",
   "tool": "forge"
 }
