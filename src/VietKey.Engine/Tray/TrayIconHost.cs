@@ -26,6 +26,8 @@ public sealed class TrayIconHost : IDisposable
 
     private const uint IMAGE_ICON = 1;
     private const uint LR_LOADFROMFILE = 0x00000010;
+    private const int SM_CXSMICON = 49;
+    private const int SM_CYSMICON = 50;
 
     private nint _hwnd;
     private bool _iconAdded;
@@ -64,6 +66,9 @@ public sealed class TrayIconHost : IDisposable
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern nint LoadImageW(nint hInst, string lpszName, uint uType, int cxDesired, int cyDesired, uint fuLoad);
+
+    [DllImport("user32.dll")]
+    private static extern int GetSystemMetrics(int nIndex);
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -142,14 +147,17 @@ public sealed class TrayIconHost : IDisposable
         string iconVPath = ResolveIconFilePath("icon-v.ico");
         string iconEPath = ResolveIconFilePath("icon-e.ico");
 
+        int cx = Math.Clamp(GetSystemMetrics(SM_CXSMICON), 16, 64);
+        int cy = Math.Clamp(GetSystemMetrics(SM_CYSMICON), 16, 64);
+
         if (File.Exists(iconVPath))
         {
-            _customIconV = LoadImageW(0, iconVPath, IMAGE_ICON, 64, 64, LR_LOADFROMFILE);
+            _customIconV = LoadImageW(0, iconVPath, IMAGE_ICON, cx, cy, LR_LOADFROMFILE);
         }
 
         if (File.Exists(iconEPath))
         {
-            _customIconE = LoadImageW(0, iconEPath, IMAGE_ICON, 64, 64, LR_LOADFROMFILE);
+            _customIconE = LoadImageW(0, iconEPath, IMAGE_ICON, cx, cy, LR_LOADFROMFILE);
         }
     }
 

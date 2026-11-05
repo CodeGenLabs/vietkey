@@ -80,15 +80,20 @@
                                Margin="0,3,0,0"/>
                 </StackPanel>
 
-                <!-- Active V/E Glossy Icon + Toggle Button -->
+                <!-- Active V/E Minimalist Icon + Toggle Button -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Image x:Name="ActiveModeIconImage"
-                           Source="pack://application:,,,/Assets/icon-v.png"
-                           Width="44"
-                           Height="44"
-                           RenderOptions.BitmapScalingMode="HighQuality"
-                           VerticalAlignment="Center"
-                           Margin="0,0,10,0"/>
+                    <Border Background="#2A1B2E"
+                            CornerRadius="8"
+                            Width="40"
+                            Height="40"
+                            Padding="7"
+                            VerticalAlignment="Center"
+                            Margin="0,0,10,0">
+                        <Image x:Name="ActiveModeIconImage"
+                               Source="pack://application:,,,/Assets/icon-v.png"
+                               Stretch="Uniform"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
 
                     <Button x:Name="QuickToggleModeButton"
                             Content="Chuyển V / E"
