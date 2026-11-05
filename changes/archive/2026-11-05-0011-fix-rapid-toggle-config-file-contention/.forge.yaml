@@ -1,0 +1,6 @@
+created: '2026-11-05'
+title: fix-rapid-toggle-config-file-contention
+track: B
+upgraded_from:
+- 'A: Add concurrent file contention regression test and cross-process mutex synchronization'
+workflow: feature

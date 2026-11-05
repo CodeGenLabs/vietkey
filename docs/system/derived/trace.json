@@ -173,6 +173,7 @@
           "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::ConfigReloadCoordinator_WhenSignaled_ReloadsUpdatedConfigWithin50Ms",
           "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::Load_WhenFileContainsCorruptedJson_FallsBackToSafeDefaults",
           "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::Load_WhenFileDoesNotExist_ReturnsAndWritesDefaultConfig",
+          "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::RapidConcurrentSavesAndReloads_DoNotThrowUnauthorizedAccessException",
           "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::SaveAndLoad_RoundTripsConfigurationAndMacros"
         ],
         "title": "Local JSON configuration persistence and zero-downtime live reload"
@@ -185,7 +186,7 @@
         "changes": [
           "0008-add-hide-dialog-on-startup-option"
         ],
-        "defined_in": "docs/system/specs/settings-and-tray/spec.md:37",
+        "defined_in": "docs/system/specs/settings-and-tray/spec.md:41",
         "evidence": [],
         "governed_by": [],
         "governs": [],
@@ -314,11 +315,11 @@
       "decisions": 2,
       "ids_indexed": 12,
       "invariants_without_tests": [],
-      "tests_tagged": 26,
-      "tests_total": 28
+      "tests_tagged": 27,
+      "tests_total": 29
     }
   },
-  "generated_from_commit": "c9483d4de34bcaf7ba57d52d626051b11aaba137",
+  "generated_from_commit": "b69c61710464b06bf22c28d456584cc1932cd766",
   "generator": "forge sync derived",
   "tool": "forge"
 }

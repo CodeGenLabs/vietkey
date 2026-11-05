@@ -154,7 +154,6 @@ public partial class DesktopSettingsWindow : Window
         QuickToggleModeButton.Click += (_, _) =>
         {
             VietnameseToggle.IsChecked = !(VietnameseToggle.IsChecked ?? true);
-            SyncControlsToViewModel();
             FooterStatusText.Text = $"Đã chuyển sang {(VietnameseToggle.IsChecked == true ? "Tiếng Việt (V)" : "Tiếng Anh (E)")}";
         };
 

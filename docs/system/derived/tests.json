@@ -24,6 +24,7 @@
         "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::ConfigReloadCoordinator_WhenSignaled_ReloadsUpdatedConfigWithin50Ms",
         "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::Load_WhenFileContainsCorruptedJson_FallsBackToSafeDefaults",
         "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::Load_WhenFileDoesNotExist_ReturnsAndWritesDefaultConfig",
+        "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::RapidConcurrentSavesAndReloads_DoNotThrowUnauthorizedAccessException",
         "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::SaveAndLoad_RoundTripsConfigurationAndMacros"
       ],
       "REQ-settings-3": [
@@ -82,8 +83,15 @@
             "name": "ConfigReloadCoordinator_WhenSignaled_ReloadsUpdatedConfigWithin50Ms"
           },
           {
+            "covers": [
+              "REQ-settings-2"
+            ],
+            "line": 103,
+            "name": "RapidConcurrentSavesAndReloads_DoNotThrowUnauthorizedAccessException"
+          },
+          {
             "covers": [],
-            "line": 101,
+            "line": 139,
             "name": "Dispose"
           }
         ],
@@ -278,29 +286,29 @@
             "covers": [
               "REQ-settings-3"
             ],
-            "line": 17,
+            "line": 18,
             "name": "SaveAndMacroEditor_PersistsConfigSignalsLiveReloadAndUpdatesStartupRegistry"
           },
           {
             "covers": [
               "REQ-settings-3"
             ],
-            "line": 71,
+            "line": 82,
             "name": "OnDemandLauncherAndWindowClose_SpawnsUiFromTrayMenuAndTerminatesProcessOnClose"
           },
           {
             "covers": [],
-            "line": 122,
+            "line": 133,
             "name": "Dispose"
           }
         ],
         "untagged": 1
       }
     },
-    "tagged_tests": 26,
-    "total_tests": 28
+    "tagged_tests": 27,
+    "total_tests": 29
   },
-  "generated_from_commit": "2e9984eb9882ef0c2cbd26d5bae9d53b0b890a69",
+  "generated_from_commit": "896abed0da121f90a5f10e70f306920f04b2ab8b",
   "generator": "forge sync derived",
   "tool": "forge"
 }

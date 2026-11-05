@@ -1,3 +1,4 @@
+using System.IO;
 using Microsoft.Win32;
 using VietKey.Core.Config;
 
@@ -11,6 +12,7 @@ public sealed class SettingsViewModel
     private readonly ConfigStore _store;
     private readonly string _reloadEventName;
     private readonly Action<bool, string>? _startupRegistrar;
+    private bool _macrosDirty;
 
     public AppConfig Config { get; set; }
     public Dictionary<string, string> Macros { get; }
@@ -46,6 +48,7 @@ public sealed class SettingsViewModel
         }
 
         Macros[trimmed] = expansion;
+        _macrosDirty = true;
         return true;
     }
 
@@ -55,13 +58,23 @@ public sealed class SettingsViewModel
         {
             return false;
         }
-        return Macros.Remove(trigger.Trim());
+
+        bool removed = Macros.Remove(trigger.Trim());
+        if (removed)
+        {
+            _macrosDirty = true;
+        }
+        return removed;
     }
 
     public void SaveAndSignalReload(string engineExecutablePath = "VietKey.Engine.exe")
     {
         _store.Save(Config);
-        _store.SaveMacros(Macros);
+        if (_macrosDirty || !File.Exists(_store.MacrosFilePath))
+        {
+            _store.SaveMacros(Macros);
+            _macrosDirty = false;
+        }
 
         if (_startupRegistrar is not null)
         {

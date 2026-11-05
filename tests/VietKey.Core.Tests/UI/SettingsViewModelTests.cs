@@ -13,6 +13,7 @@ public sealed class SettingsViewModelTests : IDisposable
         _tempDir = Path.Combine(Path.GetTempPath(), "VietKeyUITests_" + Guid.NewGuid().ToString("N"));
     }
 
+    // @covers REQ-settings-2
     // @covers REQ-settings-3
     [Fact]
     public async Task SaveAndMacroEditor_PersistsConfigSignalsLiveReloadAndUpdatesStartupRegistry()
@@ -57,6 +58,16 @@ public sealed class SettingsViewModelTests : IDisposable
         Assert.Equal("Việt Nam", coordinator.CurrentMacros["vn"]);
         Assert.True(registeredStartup);
         Assert.Equal(@"C:\VietKey\VietKey.Engine.exe", registeredExe);
+
+        // Verify rapid consecutive E -> V -> E mode toggles do not rewrite clean macros.json or throw
+        DateTime macrosWriteTimeBefore = File.GetLastWriteTimeUtc(store.MacrosFilePath);
+        for (int i = 0; i < 20; i++)
+        {
+            vm.Config = vm.Config with { VietnameseEnabled = (i % 2) == 0 };
+            vm.SaveAndSignalReload(@"C:\VietKey\VietKey.Engine.exe");
+        }
+        DateTime macrosWriteTimeAfter = File.GetLastWriteTimeUtc(store.MacrosFilePath);
+        Assert.Equal(macrosWriteTimeBefore, macrosWriteTimeAfter);
 
         // Verify startup command generation with HideDialogOnStartup checked (background only) vs unchecked (--show-ui)
         Assert.Equal(
