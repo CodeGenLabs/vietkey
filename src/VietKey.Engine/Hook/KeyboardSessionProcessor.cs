@@ -19,6 +19,8 @@ public sealed class KeyboardSessionProcessor
     private IReadOnlyDictionary<string, string> _macros;
     private bool _shiftPressed;
     private bool _ctrlPressed;
+    private bool _altPressed;
+    private bool _winPressed;
     private bool _ctrlShiftChordArmed;
     private bool _otherKeyPressedDuringModifier;
 
@@ -46,6 +48,7 @@ public sealed class KeyboardSessionProcessor
     {
         _config = config;
         _macros = macros;
+        _smartSwitch.SyncGlobalMode(config.VietnameseEnabled);
         _transformer.Reset();
     }
 
@@ -81,8 +84,16 @@ public sealed class KeyboardSessionProcessor
 
         if (IsShiftVirtualKey(virtualKey))
         {
+            if (!_shiftPressed && !_ctrlPressed && !ctrlDown)
+            {
+                _otherKeyPressedDuringModifier = false;
+            }
+
             _shiftPressed = true;
-            if ((ctrlDown || _ctrlPressed) && !altDown && !winDown && !_otherKeyPressedDuringModifier)
+            bool effectiveCtrl = ctrlDown || _ctrlPressed;
+            bool effectiveAlt = altDown || _altPressed;
+            bool effectiveWin = winDown || _winPressed;
+            if (effectiveCtrl && !effectiveAlt && !effectiveWin && !_otherKeyPressedDuringModifier)
             {
                 _ctrlShiftChordArmed = true;
             }
@@ -91,16 +102,33 @@ public sealed class KeyboardSessionProcessor
 
         if (IsCtrlVirtualKey(virtualKey))
         {
+            if (!_ctrlPressed && !_shiftPressed && !shiftDown)
+            {
+                _otherKeyPressedDuringModifier = false;
+            }
+
             _ctrlPressed = true;
-            if ((shiftDown || _shiftPressed) && !altDown && !winDown && !_otherKeyPressedDuringModifier)
+            bool effectiveShift = shiftDown || _shiftPressed;
+            bool effectiveAlt = altDown || _altPressed;
+            bool effectiveWin = winDown || _winPressed;
+            if (effectiveShift && !effectiveAlt && !effectiveWin && !_otherKeyPressedDuringModifier)
             {
                 _ctrlShiftChordArmed = true;
             }
             return false;
         }
 
-        if (IsAltVirtualKey(virtualKey) || IsWinVirtualKey(virtualKey))
+        if (IsAltVirtualKey(virtualKey))
         {
+            _altPressed = true;
+            _ctrlShiftChordArmed = false;
+            _otherKeyPressedDuringModifier = true;
+            return false;
+        }
+
+        if (IsWinVirtualKey(virtualKey))
+        {
+            _winPressed = true;
             _ctrlShiftChordArmed = false;
             _otherKeyPressedDuringModifier = true;
             return false;
@@ -108,7 +136,7 @@ public sealed class KeyboardSessionProcessor
 
         // Any non-modifier key cancels an armed Ctrl+Shift toggle chord
         _ctrlShiftChordArmed = false;
-        if (shiftDown || ctrlDown || _shiftPressed || _ctrlPressed)
+        if (shiftDown || ctrlDown || altDown || winDown || _shiftPressed || _ctrlPressed || _altPressed || _winPressed)
         {
             _otherKeyPressedDuringModifier = true;
         }
@@ -137,7 +165,10 @@ public sealed class KeyboardSessionProcessor
         }
 
         // Check Alt+Z global toggle hotkey
-        if (_config.ToggleHotkey == ToggleHotkey.AltZ && altDown && !ctrlDown && !winDown && virtualKey == 'Z')
+        bool isAltActive = altDown || _altPressed;
+        bool isCtrlActive = ctrlDown || _ctrlPressed;
+        bool isWinActive = winDown || _winPressed;
+        if (_config.ToggleHotkey == ToggleHotkey.AltZ && isAltActive && !isCtrlActive && !isWinActive && virtualKey == 'Z')
         {
             if (_peerArbitrator is not null && _peerArbitrator.Evaluate(bypassCache: true).ShouldYieldToOlderPeer)
             {
@@ -155,7 +186,7 @@ public sealed class KeyboardSessionProcessor
             return false;
         }
 
-        if (InputBatchBuilder.IsNavigationOrResetKey(virtualKey, ctrlDown, altDown, winDown))
+        if (InputBatchBuilder.IsNavigationOrResetKey(virtualKey, isCtrlActive, isAltActive, isWinActive))
         {
             _transformer.Reset();
             return false;
@@ -174,7 +205,8 @@ public sealed class KeyboardSessionProcessor
             return true;
         }
 
-        if (!TryMapVirtualKeyToChar(virtualKey, shiftDown, capsLockOn, out char ch))
+        bool isShiftActive = shiftDown || _shiftPressed;
+        if (!TryMapVirtualKeyToChar(virtualKey, isShiftActive, capsLockOn, out char ch))
         {
             return false;
         }
@@ -204,6 +236,26 @@ public sealed class KeyboardSessionProcessor
             return false;
         }
 
+        if (IsAltVirtualKey(virtualKey))
+        {
+            _altPressed = false;
+            if (!_shiftPressed && !_ctrlPressed && !_altPressed && !_winPressed)
+            {
+                _otherKeyPressedDuringModifier = false;
+            }
+            return false;
+        }
+
+        if (IsWinVirtualKey(virtualKey))
+        {
+            _winPressed = false;
+            if (!_shiftPressed && !_ctrlPressed && !_altPressed && !_winPressed)
+            {
+                _otherKeyPressedDuringModifier = false;
+            }
+            return false;
+        }
+
         bool isShift = IsShiftVirtualKey(virtualKey);
         bool isCtrl = IsCtrlVirtualKey(virtualKey);
         if (!isShift && !isCtrl)
@@ -222,14 +274,17 @@ public sealed class KeyboardSessionProcessor
         }
 
         bool wasArmed = _ctrlShiftChordArmed;
+        bool hadOtherKey = _otherKeyPressedDuringModifier;
         _ctrlShiftChordArmed = false;
 
-        if (!_shiftPressed && !_ctrlPressed && !shiftDown && !ctrlDown)
+        if (!_shiftPressed && !_ctrlPressed)
         {
             _otherKeyPressedDuringModifier = false;
         }
 
-        if (!wasArmed || _config.ToggleHotkey != ToggleHotkey.CtrlShift || altDown || winDown)
+        bool effectiveAlt = altDown || _altPressed;
+        bool effectiveWin = winDown || _winPressed;
+        if (!wasArmed || hadOtherKey || _config.ToggleHotkey != ToggleHotkey.CtrlShift || effectiveAlt || effectiveWin)
         {
             return false;
         }

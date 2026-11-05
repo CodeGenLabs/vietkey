@@ -142,6 +142,9 @@ public static class NativeMethods
     [DllImport("user32.dll")]
     public static extern short GetKeyState(int nVirtKey);
 
+    [DllImport("user32.dll")]
+    public static extern short GetAsyncKeyState(int vKey);
+
     [DllImport("imm32.dll")]
     public static extern nint ImmGetDefaultIMEWnd(nint hWnd);
 

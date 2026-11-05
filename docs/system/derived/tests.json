@@ -16,9 +16,9 @@
         "tests/VietKey.Core.Tests/Injection/SmartSwitchTrackerTests.cs::OnForegroundChanged_RestoresRememberedLanguagePerExecutable_AndClearsBuffer"
       ],
       "REQ-settings-1": [
-        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndInterveningKeys",
+        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndWorksAfterAltTabAndCapitalLetters",
         "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance",
-        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu"
+        "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SystemTrayCallback_RapidLeftClicksOnlyToggleLanguageWithoutOpeningSettingsAndRightClickShowsMenu"
       ],
       "REQ-settings-2": [
         "tests/VietKey.Core.Tests/Config/ConfigStoreTests.cs::ConfigReloadCoordinator_WhenSignaled_ReloadsUpdatedConfigWithin50Ms",
@@ -125,15 +125,15 @@
             "covers": [
               "REQ-settings-1"
             ],
-            "line": 185,
-            "name": "CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndInterveningKeys"
+            "line": 187,
+            "name": "CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndWorksAfterAltTabAndCapitalLetters"
           },
           {
             "covers": [
               "REQ-settings-1"
             ],
-            "line": 249,
-            "name": "SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu"
+            "line": 268,
+            "name": "SystemTrayCallback_RapidLeftClicksOnlyToggleLanguageWithoutOpeningSettingsAndRightClickShowsMenu"
           }
         ],
         "untagged": 0
@@ -308,7 +308,7 @@
     "tagged_tests": 27,
     "total_tests": 29
   },
-  "generated_from_commit": "6402a13213cfbc62b9c798aa7920670cdea8c631",
+  "generated_from_commit": "156dcf686ce4e920b9b2da6eb83e4ec75e87a69d",
   "generator": "forge sync derived",
   "tool": "forge"
 }

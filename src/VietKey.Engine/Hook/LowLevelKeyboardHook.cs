@@ -54,17 +54,18 @@ public sealed class LowLevelKeyboardHook : IDisposable
             }
 
             var info = Marshal.PtrToStructure<NativeMethods.KBDLLHOOKSTRUCT>(lParam);
-            bool shift = (NativeMethods.GetKeyState(0x10) & 0x8000) != 0;
-            bool ctrl = (NativeMethods.GetKeyState(0x11) & 0x8000) != 0;
-            bool alt = (NativeMethods.GetKeyState(0x12) & 0x8000) != 0;
-            bool win = (NativeMethods.GetKeyState(0x5B) & 0x8000) != 0 || (NativeMethods.GetKeyState(0x5C) & 0x8000) != 0;
+            int vk = (int)info.vkCode;
+            bool shift = (NativeMethods.GetAsyncKeyState(0x10) & 0x8000) != 0;
+            bool ctrl = (NativeMethods.GetAsyncKeyState(0x11) & 0x8000) != 0;
+            bool alt = (NativeMethods.GetAsyncKeyState(0x12) & 0x8000) != 0;
+            bool win = (NativeMethods.GetAsyncKeyState(0x5B) & 0x8000) != 0 || (NativeMethods.GetAsyncKeyState(0x5C) & 0x8000) != 0;
             bool caps = (NativeMethods.GetKeyState(0x14) & 0x0001) != 0;
             nint hwnd = NativeMethods.GetForegroundWindow();
 
             if (wParam == NativeMethods.WM_KEYDOWN || wParam == NativeMethods.WM_SYSKEYDOWN)
             {
                 bool suppress = _processor.ProcessKeyDown(
-                    (int)info.vkCode,
+                    vk,
                     info.flags,
                     shift,
                     caps,
@@ -80,8 +81,25 @@ public sealed class LowLevelKeyboardHook : IDisposable
             }
             else if (wParam == NativeMethods.WM_KEYUP || wParam == NativeMethods.WM_SYSKEYUP)
             {
+                if (KeyboardSessionProcessor.IsShiftVirtualKey(vk))
+                {
+                    shift = false;
+                }
+                else if (KeyboardSessionProcessor.IsCtrlVirtualKey(vk))
+                {
+                    ctrl = false;
+                }
+                else if (KeyboardSessionProcessor.IsAltVirtualKey(vk))
+                {
+                    alt = false;
+                }
+                else if (KeyboardSessionProcessor.IsWinVirtualKey(vk))
+                {
+                    win = false;
+                }
+
                 _ = _processor.ProcessKeyUp(
-                    (int)info.vkCode,
+                    vk,
                     info.flags,
                     shift,
                     ctrl,

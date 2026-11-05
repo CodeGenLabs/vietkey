@@ -155,16 +155,18 @@ public sealed class KeyboardSessionProcessorTests
         Assert.NotEqual(0, iconVLight);
         Assert.NotEqual(iconVDark, iconVLight);
 
-        // Press Alt+Z -> flips from Vietnamese (true) to English (false)
+        // Press Alt down (0xA4) then Z (with altDown=false to simulate background thread GetKeyState=0, relying on tracked _altPressed)
+        processor.ProcessKeyDown(0xA4, 0, false, false, false, false, false, 10);
         bool handled = processor.ProcessKeyDown(
             'Z',
             llkhfFlags: 0,
             shiftDown: false,
             capsLockOn: false,
             ctrlDown: false,
-            altDown: true,
+            altDown: false,
             winDown: false,
             foregroundHwnd: 10);
+        processor.ProcessKeyUp(0xA4, 0, false, false, false, false, 10);
 
         Assert.True(handled);
         Assert.False(processor.CurrentConfig.VietnameseEnabled);
@@ -183,7 +185,7 @@ public sealed class KeyboardSessionProcessorTests
 
     // @covers REQ-settings-1
     [Fact]
-    public void CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndInterveningKeys()
+    public void CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndWorksAfterAltTabAndCapitalLetters()
     {
         var vietKeyStartUtc = new DateTime(2026, 11, 4, 8, 0, 0, DateTimeKind.Utc);
         var activePeers = new List<PeerImeProcessInfo>
@@ -197,7 +199,7 @@ public sealed class KeyboardSessionProcessorTests
         var processor = new KeyboardSessionProcessor(
             AppConfig.Default with { VietnameseEnabled = true, ToggleHotkey = ToggleHotkey.CtrlShift },
             new Dictionary<string, string>(),
-            _ => "chrome.exe",
+            hwnd => hwnd == 99 ? "explorer.exe" : "chrome.exe",
             batch => dispatchedBatches.Add(batch),
             peerArbitrator: arbitrator);
 
@@ -209,8 +211,25 @@ public sealed class KeyboardSessionProcessorTests
         Assert.False(toggledWhileOlderEvKeyRunning);
         Assert.True(processor.CurrentConfig.VietnameseEnabled);
 
-        // 2. Older EVKey closes -> VietKey immediately takes over Ctrl+Shift without restart
+        // 2. Older EVKey closes -> simulate prior Alt+Tab, Win+D, Shift+A, and Ctrl+C before pressing Ctrl+Shift
         activePeers.Clear();
+
+        // Simulate Alt+Tab
+        processor.ProcessKeyDown(0xA4, 0, false, false, false, true, false, 10);
+        processor.ProcessKeyDown(0x09, 0, false, false, false, true, false, 10);
+        processor.ProcessKeyUp(0xA4, 0, false, false, false, false, 10);
+
+        // Simulate Win+D
+        processor.ProcessKeyDown(0x5B, 0, false, false, false, false, true, 10);
+        processor.ProcessKeyDown('D', 0, false, false, false, false, true, 10);
+        processor.ProcessKeyUp(0x5B, 0, false, false, false, false, 10);
+
+        // Simulate typing capital 'V' (Shift+V) where WM_KEYUP still reports shiftDown=true in hook pre-processing
+        processor.ProcessKeyDown(0xA0, 0, true, false, false, false, false, 10);
+        processor.ProcessKeyDown('V', 0, true, false, false, false, false, 10);
+        processor.ProcessKeyUp(0xA0, 0, true, false, false, false, 10);
+
+        // Now press Ctrl+Shift -> must toggle VietnameseEnabled from true to false!
         processor.ProcessKeyDown(0xA2, 0, false, false, false, false, false, 10); // VK_LCONTROL down
         processor.ProcessKeyDown(0xA0, 0, false, false, true, false, false, 10);  // VK_LSHIFT down
         bool toggledAfterEvKeyClosed = processor.ProcessKeyUp(0xA0, 0, false, true, false, false, 10);
@@ -247,24 +266,29 @@ public sealed class KeyboardSessionProcessorTests
 
     // @covers REQ-settings-1
     [Fact]
-    public void SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu()
+    public void SystemTrayCallback_RapidLeftClicksOnlyToggleLanguageWithoutOpeningSettingsAndRightClickShowsMenu()
     {
         using var tray = new VietKey.Engine.Tray.TrayIconHost(AppConfig.Default);
-        bool toggleCalled = false;
+        int toggleCount = 0;
         bool openSettingsCalled = false;
         bool contextMenuCalled = false;
 
-        tray.ToggleRequested += () => toggleCalled = true;
+        tray.ToggleRequested += () => toggleCount++;
         tray.OpenSettingsRequested += () => openSettingsCalled = true;
         tray.ContextMenuRequested += () => contextMenuCalled = true;
 
+        // Simulate rapid left clicks (WM_LBUTTONUP -> WM_LBUTTONDBLCLK -> WM_LBUTTONUP)
         tray.HandleMouseMessage(VietKey.Engine.Tray.TrayIconHost.WM_LBUTTONUP);
-        Assert.True(toggleCalled);
-
         tray.HandleMouseMessage(VietKey.Engine.Tray.TrayIconHost.WM_LBUTTONDBLCLK);
-        Assert.True(openSettingsCalled);
+        tray.HandleMouseMessage(VietKey.Engine.Tray.TrayIconHost.WM_LBUTTONUP);
+
+        Assert.Equal(2, toggleCount);
+        Assert.False(openSettingsCalled);
 
         tray.HandleMouseMessage(VietKey.Engine.Tray.TrayIconHost.WM_RBUTTONUP);
         Assert.True(contextMenuCalled);
+
+        tray.HandleMenuCommand(VietKey.Engine.Tray.TrayIconHost.CmdOpenSettings);
+        Assert.True(openSettingsCalled);
     }
 }

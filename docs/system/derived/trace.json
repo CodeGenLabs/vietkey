@@ -144,9 +144,9 @@
         "status": null,
         "supersedes": null,
         "tests": [
-          "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndInterveningKeys",
+          "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::CtrlShiftHotkeyAndEvKeyCoexistence_RespectsStartOrderPriorityAndWorksAfterAltTabAndCapitalLetters",
           "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SingleInstanceMutexAndGlobalHotkey_TogglesModeOnAltZAndPreventsDuplicateInstance",
-          "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SystemTrayCallback_HandlesLeftClickToggleDoubleClickSettingsAndRightClickMenu"
+          "tests/VietKey.Core.Tests/Hook/KeyboardSessionProcessorTests.cs::SystemTrayCallback_RapidLeftClicksOnlyToggleLanguageWithoutOpeningSettingsAndRightClickShowsMenu"
         ],
         "title": "Lightweight System Tray host and global toggle hotkeys"
       },
@@ -319,7 +319,7 @@
       "tests_total": 29
     }
   },
-  "generated_from_commit": "6990971c6cce2daf0b2b1ebd1e9cf3f7f9e72344",
+  "generated_from_commit": "6804b73451ba32f83d1c500b96fb1c0778205cf7",
   "generator": "forge sync derived",
   "tool": "forge"
 }

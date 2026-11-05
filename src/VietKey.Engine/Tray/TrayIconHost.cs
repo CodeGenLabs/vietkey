@@ -415,7 +415,7 @@ public sealed class TrayIconHost : IDisposable
                 ToggleRequested?.Invoke();
                 break;
             case WM_LBUTTONDBLCLK:
-                OpenSettingsRequested?.Invoke();
+                // Rapid left-clicks must only toggle E <-> V via WM_LBUTTONUP and never pop up the Settings dialog.
                 break;
             case WM_RBUTTONUP:
             case WM_CONTEXTMENU:
