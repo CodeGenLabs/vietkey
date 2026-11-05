@@ -151,12 +151,6 @@ public partial class DesktopSettingsWindow : Window
 
     private void WireEvents()
     {
-        QuickToggleModeButton.Click += (_, _) =>
-        {
-            VietnameseToggle.IsChecked = !(VietnameseToggle.IsChecked ?? true);
-            FooterStatusText.Text = $"Đã chuyển sang {(VietnameseToggle.IsChecked == true ? "Tiếng Việt (V)" : "Tiếng Anh (E)")}";
-        };
-
         RoutedEventHandler checkChanged = (_, _) =>
         {
             if (!_suppressEvents)
