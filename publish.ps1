@@ -6,6 +6,15 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
 
+foreach ($proc in 'VietKey', 'VietKey.Engine') {
+    $running = Get-Process -Name $proc -ErrorAction SilentlyContinue
+    if ($running) {
+        Write-Host "Stopping running $proc..."
+        $running | Stop-Process -Force
+        $running | Wait-Process -Timeout 10 -ErrorAction SilentlyContinue
+    }
+}
+
 $out = 'publish\VietKey'
 Remove-Item -Path $out -Recurse -Force -ErrorAction SilentlyContinue
 
