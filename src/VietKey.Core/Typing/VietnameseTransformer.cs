@@ -5,24 +5,59 @@ namespace VietKey.Core.Typing;
 
 public sealed class VietnameseTransformer
 {
+    private const int MaxWordHistory = 16;
+
     private readonly SyllableBuffer _buffer = new();
+
+    // Words committed in the current typing run (newest last). Each remembers how many separator
+    // characters were typed after it, so backspacing over those separators can bring the word back
+    // into the buffer and let the user keep adding marks to it ("dương abc" ⌫⌫⌫⌫ + f -> "dường").
+    private readonly List<CommittedWord> _history = new(MaxWordHistory);
 
     public SyllableBuffer Buffer => _buffer;
     public string CurrentDisplayedText => _buffer.DisplayedText;
+    public int WordHistoryCount => _history.Count;
 
-    public void Reset() => _buffer.Clear();
+    /// <summary>
+    /// Forget everything about the text around the caret. Call whenever the caret may have moved
+    /// without us seeing the keystrokes (navigation keys, mouse clicks, focus/window change).
+    /// </summary>
+    public void Reset()
+    {
+        _buffer.Clear();
+        _history.Clear();
+    }
+
+    /// <summary>
+    /// A printable key we cannot map to a character (punctuation, shifted digits, numpad):
+    /// it ends the current word exactly like a space would, but the text is left untouched.
+    /// </summary>
+    public void ProcessUnmappedSeparator()
+    {
+        RecordBoundary(isLineBreak: false, restorable: true);
+        _buffer.Clear();
+    }
 
     public KeyTransformResult ProcessKey(char ch, AppConfig config, IReadOnlyDictionary<string, string>? macros = null)
     {
         if (!config.VietnameseEnabled)
         {
-            _buffer.Clear();
+            Reset();
             return KeyTransformResult.PassThrough();
         }
 
         if (IsWordBoundary(ch))
         {
+            string rawBeforeBoundary = _buffer.GetRawString();
             var boundaryResult = HandleWordBoundary(ch, config, macros);
+            bool restoredToRaw = boundaryResult.Handled
+                && string.Equals(boundaryResult.ComposedWord, rawBeforeBoundary + ch, StringComparison.Ordinal);
+            if (restoredToRaw)
+            {
+                // Auto-restored English: what is on screen now is the raw keys, keep that literal text
+                _buffer.CopyFrom(SyllableBuffer.FromLiteral(rawBeforeBoundary));
+            }
+            RecordBoundary(isLineBreak: ch is '\n' or '\r', restorable: !boundaryResult.Handled || restoredToRaw);
             _buffer.Clear();
             return boundaryResult;
         }
@@ -67,6 +102,7 @@ public sealed class VietnameseTransformer
     {
         if (_buffer.IsEmpty)
         {
+            TryRestorePreviousWordAfterBackspace();
             return KeyTransformResult.PassThrough();
         }
 
@@ -103,6 +139,68 @@ public sealed class VietnameseTransformer
 
         // Replacing previous string (minus the physical backspace if we handle it)
         return new KeyTransformResult(true, prev.Length, updated, updated);
+    }
+
+    private void RecordBoundary(bool isLineBreak, bool restorable)
+    {
+        if (isLineBreak)
+        {
+            // Enter often submits/clears the field (chat boxes, terminals): never trust the old words after it
+            _history.Clear();
+            return;
+        }
+
+        if (!_buffer.IsEmpty)
+        {
+            if (!restorable)
+            {
+                // e.g. macro expansion: screen text no longer matches anything we can rebuild
+                _history.Clear();
+                return;
+            }
+
+            if (_history.Count == MaxWordHistory)
+            {
+                _history.RemoveAt(0);
+            }
+            _history.Add(new CommittedWord(_buffer.Clone()));
+            return;
+        }
+
+        if (_history.Count > 0)
+        {
+            _history[^1].TrailingSeparators++;
+        }
+    }
+
+    private void TryRestorePreviousWordAfterBackspace()
+    {
+        if (_history.Count == 0)
+        {
+            return;
+        }
+
+        var last = _history[^1];
+        last.TrailingSeparators--;
+        if (last.TrailingSeparators > 0)
+        {
+            return;
+        }
+
+        // The physical Backspace removes the last separator; the caret now sits right after this word
+        _history.RemoveAt(_history.Count - 1);
+        _buffer.CopyFrom(last.Word);
+    }
+
+    private sealed class CommittedWord
+    {
+        public CommittedWord(SyllableBuffer word)
+        {
+            Word = word;
+        }
+
+        public SyllableBuffer Word { get; }
+        public int TrailingSeparators { get; set; } = 1;
     }
 
     private bool TryApplyTelex(char ch)

@@ -23,6 +23,19 @@ public sealed class KeyboardSessionProcessor
     private bool _winPressed;
     private bool _ctrlShiftChordArmed;
     private bool _otherKeyPressedDuringModifier;
+    private nint _lastForegroundHwnd;
+
+    // Alt pressed and released on its own (or F10) opens menu / Office ribbon KeyTips: the letters that
+    // follow are commands, not text, so composing them would send Backspace + Unicode into the ribbon.
+    private bool _altTapCandidate;
+    private bool _menuKeyTipsActive;
+
+    // Excel: a cell started with '=' or '+' is a formula; "=IF(" must not become "=Ì(".
+    private bool _caretAtFreshPosition = true;
+    private bool _excelFormulaActive;
+
+    public bool IsMenuKeyTipsActive => _menuKeyTipsActive;
+    public bool IsExcelFormulaActive => _excelFormulaActive;
 
     public AppConfig CurrentConfig => _config;
     public PeerImeArbitrator? PeerArbitrator => _peerArbitrator;
@@ -94,6 +107,29 @@ public sealed class KeyboardSessionProcessor
         }
     }
 
+    /// <summary>
+    /// The caret may have moved without a keystroke (mouse click, touch, pen): the composing word and
+    /// the remembered previous words no longer describe the text around the caret.
+    /// </summary>
+    public void ResetComposition()
+    {
+        _transformer.Reset();
+        _menuKeyTipsActive = false;
+        // Clicking cells while building an Excel formula inserts references, so formula mode is kept
+        _caretAtFreshPosition = true;
+    }
+
+    private void ResetCaretContext(bool keepFormula = false)
+    {
+        _transformer.Reset();
+        _menuKeyTipsActive = false;
+        _caretAtFreshPosition = true;
+        if (!keepFormula)
+        {
+            _excelFormulaActive = false;
+        }
+    }
+
     public static bool IsModifierVirtualKey(int vk) =>
         IsShiftVirtualKey(vk) || IsCtrlVirtualKey(vk) || IsAltVirtualKey(vk) || IsWinVirtualKey(vk);
 
@@ -115,6 +151,12 @@ public sealed class KeyboardSessionProcessor
         if (InputBatchBuilder.IsSyntheticInjected(llkhfFlags))
         {
             return false;
+        }
+
+        if (!IsAltVirtualKey(virtualKey))
+        {
+            // Alt+<anything> is a shortcut, not a lone Alt tap
+            _altTapCandidate = false;
         }
 
         if (IsShiftVirtualKey(virtualKey))
@@ -155,6 +197,10 @@ public sealed class KeyboardSessionProcessor
 
         if (IsAltVirtualKey(virtualKey))
         {
+            if (!_altPressed)
+            {
+                _altTapCandidate = !(shiftDown || ctrlDown || winDown || _shiftPressed || _ctrlPressed || _winPressed);
+            }
             _altPressed = true;
             _ctrlShiftChordArmed = false;
             _otherKeyPressedDuringModifier = true;
@@ -180,6 +226,13 @@ public sealed class KeyboardSessionProcessor
         {
             _transformer.Reset();
             return false;
+        }
+
+        if (foregroundHwnd != _lastForegroundHwnd)
+        {
+            // Different window (even within the same app): its caret has nothing to do with our buffer
+            _lastForegroundHwnd = foregroundHwnd;
+            ResetCaretContext();
         }
 
         var (exeName, appProfile) = _appDetector.ResolveForWindow(foregroundHwnd);
@@ -221,10 +274,62 @@ public sealed class KeyboardSessionProcessor
             return false;
         }
 
+        if (_menuKeyTipsActive)
+        {
+            // Letters/digits drive the KeyTips; anything else means the user is back to editing text
+            bool keyTipKey = virtualKey is >= 'A' and <= 'Z' or >= '0' and <= '9' or InputBatchBuilder.VkBack
+                && !isCtrlActive && !isAltActive && !isWinActive;
+            if (keyTipKey)
+            {
+                _transformer.Reset();
+                return false;
+            }
+            _menuKeyTipsActive = false;
+        }
+
+        bool isPlainKey = !isCtrlActive && !isAltActive && !isWinActive;
+        if (virtualKey == VkF10 && isPlainKey && !(shiftDown || _shiftPressed))
+        {
+            ResetCaretContext(keepFormula: _excelFormulaActive);
+            _menuKeyTipsActive = true;
+            return false;
+        }
+
+        if (virtualKey is VkEscape or VkTab && isPlainKey)
+        {
+            // Esc / Tab finish (or cancel) the cell in Excel, move focus elsewhere: the next key starts fresh text
+            ResetCaretContext();
+            return false;
+        }
+
         if (InputBatchBuilder.IsNavigationOrResetKey(virtualKey, isCtrlActive, isAltActive, isWinActive))
         {
-            _transformer.Reset();
+            // In an Excel formula, arrows / F4 / Ctrl+... point at cells and the formula continues
+            ResetCaretContext(keepFormula: _excelFormulaActive && appProfile == AppCompatibilityProfile.MicrosoftExcel);
             return false;
+        }
+
+        bool isShiftActive = shiftDown || _shiftPressed;
+        if (appProfile == AppCompatibilityProfile.MicrosoftExcel)
+        {
+            if (_caretAtFreshPosition && IsExcelFormulaStartKey(virtualKey, isShiftActive))
+            {
+                _excelFormulaActive = true;
+            }
+
+            if (_excelFormulaActive)
+            {
+                if (virtualKey == VkReturn)
+                {
+                    ResetCaretContext(); // Enter commits the formula
+                }
+                else
+                {
+                    _caretAtFreshPosition = false;
+                    _transformer.Reset();
+                }
+                return false;
+            }
         }
 
         if (virtualKey == InputBatchBuilder.VkBack)
@@ -240,13 +345,26 @@ public sealed class KeyboardSessionProcessor
             return true;
         }
 
-        bool isShiftActive = shiftDown || _shiftPressed;
+        _caretAtFreshPosition = false;
         if (!TryMapVirtualKeyToChar(virtualKey, isShiftActive, capsLockOn, out char ch))
         {
+            if (IsPrintableSeparatorKey(virtualKey, isShiftActive))
+            {
+                // Punctuation ends the word; without this the next tone key would edit the word
+                // before the punctuation (and send backspaces that eat the punctuation itself)
+                _transformer.ProcessUnmappedSeparator();
+            }
             return false;
         }
 
         var transformResult = _transformer.ProcessKey(ch, _config, _macros);
+        if (virtualKey == VkReturn)
+        {
+            // Enter still ran through the transformer (macro expansion / English restore on the last word),
+            // then it commits the line / Excel cell: the next key starts fresh text
+            ResetCaretContext();
+        }
+
         if (!transformResult.Handled)
         {
             return false;
@@ -282,6 +400,17 @@ public sealed class KeyboardSessionProcessor
             if (!_shiftPressed && !_ctrlPressed && !_altPressed && !_winPressed)
             {
                 _otherKeyPressedDuringModifier = false;
+            }
+
+            if (_altTapCandidate)
+            {
+                // Lone Alt tap toggles the menu bar / Office ribbon KeyTips
+                _altTapCandidate = false;
+                bool sameWindow = foregroundHwnd == _lastForegroundHwnd;
+                bool enterKeyTips = !(_menuKeyTipsActive && sameWindow);
+                _lastForegroundHwnd = foregroundHwnd; // first key in a newly focused window may be this Alt tap
+                ResetCaretContext(keepFormula: _excelFormulaActive && sameWindow);
+                _menuKeyTipsActive = enterKeyTips;
             }
             return false;
         }
@@ -377,6 +506,22 @@ public sealed class KeyboardSessionProcessor
             _otherKeyPressedDuringModifier = false;
         }
     }
+
+    private const int VkTab = 0x09;
+    private const int VkReturn = 0x0D;
+    private const int VkEscape = 0x1B;
+    private const int VkF10 = 0x79;
+
+    private static bool IsExcelFormulaStartKey(int vk, bool shift) =>
+        vk == 0xBB                    // '=' or '+' (VK_OEM_PLUS)
+        || vk == 0x6B;                // numpad '+'
+
+    private static bool IsPrintableSeparatorKey(int vk, bool shift) =>
+        (vk is >= '0' and <= '9' && shift) // ! @ # $ % ^ & * ( )
+        || vk is >= 0x60 and <= 0x6F       // numpad digits and operators
+        || vk is >= 0xBA and <= 0xC0       // ; = , - . / `
+        || vk is >= 0xDB and <= 0xDF       // [ \ ] '
+        || vk == 0xE2;                     // OEM_102 (< > on ISO keyboards)
 
     private static bool TryMapVirtualKeyToChar(int vk, bool shift, bool capsLock, out char ch)
     {

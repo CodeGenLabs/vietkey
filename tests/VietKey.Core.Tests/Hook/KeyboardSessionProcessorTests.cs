@@ -339,4 +339,192 @@ public sealed class KeyboardSessionProcessorTests
         tray.HandleMenuCommand(VietKey.Engine.Tray.TrayIconHost.CmdOpenSettings);
         Assert.True(openSettingsCalled);
     }
+
+    // @covers REQ-os-1
+    [Fact]
+    public void ResetCompositionAndPunctuation_StopToneKeysFromRewritingThePreviousWord()
+    {
+        var dispatchedBatches = new List<SimulatedKeyEvent[]>();
+        var processor = new KeyboardSessionProcessor(
+            AppConfig.Default,
+            new Dictionary<string, string>(),
+            _ => "code.exe",
+            batch => dispatchedBatches.Add(batch));
+
+        void Type(string keys)
+        {
+            foreach (char c in keys)
+            {
+                processor.ProcessKeyDown(char.ToUpperInvariant(c), 0, false, false, false, false, false, 20);
+            }
+        }
+
+        // Mouse click moves the caret into older text
+        Type("duowng");
+        dispatchedBatches.Clear();
+        processor.ResetComposition();
+        Assert.False(processor.ProcessKeyDown('F', 0, false, false, false, false, false, 20));
+        Assert.Empty(dispatchedBatches);
+
+        // Punctuation (VK_OEM_COMMA) ends the word
+        processor.ResetComposition();
+        Type("duowng");
+        dispatchedBatches.Clear();
+        Assert.False(processor.ProcessKeyDown(0xBC, 0, false, false, false, false, false, 20));
+        Assert.False(processor.ProcessKeyDown('F', 0, false, false, false, false, false, 20));
+        Assert.Empty(dispatchedBatches);
+
+        // Switching to another window of the same app also drops the buffer
+        processor.ResetComposition();
+        Type("duowng");
+        dispatchedBatches.Clear();
+        Assert.False(processor.ProcessKeyDown('F', 0, false, false, false, false, false, 21));
+        Assert.Empty(dispatchedBatches);
+    }
+
+    private static (KeyboardSessionProcessor Processor, List<SimulatedKeyEvent[]> Batches) CreateExcelProcessor()
+    {
+        var batches = new List<SimulatedKeyEvent[]>();
+        var processor = new KeyboardSessionProcessor(
+            AppConfig.Default,
+            new Dictionary<string, string>(),
+            _ => @"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE",
+            batch => batches.Add(batch));
+        return (processor, batches);
+    }
+
+    private static void TypeLetters(KeyboardSessionProcessor processor, string keys)
+    {
+        foreach (char c in keys)
+        {
+            processor.ProcessKeyDown(char.ToUpperInvariant(c), 0, false, false, false, false, false, 30);
+            processor.ProcessKeyUp(char.ToUpperInvariant(c), 0, false, false, false, false, 30);
+        }
+    }
+
+    private static void Tap(KeyboardSessionProcessor processor, int vk, bool shift = false, bool ctrl = false)
+    {
+        processor.ProcessKeyDown(vk, 0, shift, false, ctrl, false, false, 30);
+        processor.ProcessKeyUp(vk, 0, shift, ctrl, false, false, 30);
+    }
+
+    // @covers REQ-os-1
+    [Fact]
+    public void Excel_LoneAltTapKeyTips_AreNeverComposed_UntilUserLeavesTheRibbon()
+    {
+        var (processor, batches) = CreateExcelProcessor();
+
+        // Alt, H, O, W (ribbon KeyTips) - "ow" must not become "ơ" (Backspace + Unicode sent to the ribbon)
+        processor.ProcessKeyDown(0xA4, 0, false, false, false, false, false, 30);
+        processor.ProcessKeyUp(0xA4, 0, false, false, false, false, 30);
+        Assert.True(processor.IsMenuKeyTipsActive);
+        TypeLetters(processor, "how");
+        TypeLetters(processor, "es"); // Alt E S (legacy Paste Special)
+        Assert.Empty(batches);
+
+        // Esc / arrow / click returns to the grid: typing composes again
+        Tap(processor, 0x1B);
+        Assert.False(processor.IsMenuKeyTipsActive);
+        TypeLetters(processor, "duowng");
+        Assert.NotEmpty(batches);
+
+        // F10 also opens KeyTips
+        batches.Clear();
+        Tap(processor, 0x79);
+        Assert.True(processor.IsMenuKeyTipsActive);
+        TypeLetters(processor, "aw");
+        Assert.Empty(batches);
+        processor.ResetComposition(); // mouse click
+        Assert.False(processor.IsMenuKeyTipsActive);
+    }
+
+    // @covers REQ-os-1
+    [Fact]
+    public void Excel_AltChordShortcuts_DoNotEnterKeyTipsMode()
+    {
+        var (processor, batches) = CreateExcelProcessor();
+
+        // Alt+Enter (new line in cell), Alt+= (AutoSum), Alt+Z (toggle) are chords, not lone taps
+        processor.ProcessKeyDown(0xA4, 0, false, false, false, false, false, 30);
+        processor.ProcessKeyDown(0x0D, 0, false, false, false, true, false, 30);
+        processor.ProcessKeyUp(0x0D, 0, false, false, true, false, 30);
+        processor.ProcessKeyUp(0xA4, 0, false, false, false, false, 30);
+        Assert.False(processor.IsMenuKeyTipsActive);
+
+        TypeLetters(processor, "vieetj");
+        Assert.NotEmpty(batches);
+    }
+
+    // @covers REQ-os-1
+    [Fact]
+    public void Excel_FormulaCells_AreNotComposed_ButTextCellsAre()
+    {
+        var (processor, batches) = CreateExcelProcessor();
+
+        // =IF(A1;"x") : 'f' after 'i' must not become "ì"
+        Tap(processor, 0xBB); // '='
+        Assert.True(processor.IsExcelFormulaActive);
+        TypeLetters(processor, "if");
+        Tap(processor, '9', shift: true); // '('
+        TypeLetters(processor, "a");
+        Tap(processor, 0x25); // Left arrow points at cells; still the same formula
+        TypeLetters(processor, "s");
+        Assert.True(processor.IsExcelFormulaActive);
+        Assert.Empty(batches);
+
+        // Enter commits the formula; next cell is normal Vietnamese text
+        Tap(processor, 0x0D);
+        Assert.False(processor.IsExcelFormulaActive);
+        TypeLetters(processor, "tieengs");
+        Assert.NotEmpty(batches);
+
+        // '=' typed in the middle of text is not a formula
+        batches.Clear();
+        Tap(processor, 0x0D);
+        TypeLetters(processor, "a");
+        Tap(processor, 0xBB);
+        Assert.False(processor.IsExcelFormulaActive);
+        TypeLetters(processor, "as");
+        Assert.NotEmpty(batches);
+
+        // Esc cancels a formula
+        Tap(processor, 0x0D);
+        Tap(processor, 0x6B); // numpad '+'
+        Assert.True(processor.IsExcelFormulaActive);
+        Tap(processor, 0x1B);
+        Assert.False(processor.IsExcelFormulaActive);
+    }
+
+    // @covers REQ-os-1
+    [Fact]
+    public void Excel_ShortcutsAndNavigation_DropTheBufferSoNoOldWordIsRewritten()
+    {
+        var (processor, batches) = CreateExcelProcessor();
+
+        foreach (var (vk, ctrl) in new (int, bool)[]
+        {
+            (0x25, false), (0x28, false), (0x09, false), (0x71, false), // Left, Down, Tab, F2
+            ('C', true), ('Z', true), (0x24, true)                      // Ctrl+C, Ctrl+Z, Ctrl+Home
+        })
+        {
+            processor.ResetComposition();
+            TypeLetters(processor, "duowng");
+            batches.Clear();
+
+            if (ctrl)
+            {
+                processor.ProcessKeyDown(0xA2, 0, false, false, false, false, false, 30);
+                processor.ProcessKeyDown(vk, 0, false, false, true, false, false, 30);
+                processor.ProcessKeyUp(vk, 0, false, true, false, false, 30);
+                processor.ProcessKeyUp(0xA2, 0, false, false, false, false, 30);
+            }
+            else
+            {
+                Tap(processor, vk);
+            }
+
+            Assert.False(processor.ProcessKeyDown('F', 0, false, false, false, false, false, 30));
+            Assert.Empty(batches);
+        }
+    }
 }

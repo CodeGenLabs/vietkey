@@ -85,4 +85,23 @@ public sealed class AppCompatibilityDetectorTests
             Assert.Equal('đ', (char)directBatch[2].ScanCode);
         }
     }
+
+    // @covers REQ-os-2
+    [Fact]
+    public void Excel_GetsOwnProfile_AndAutoCompleteSafeBatch()
+    {
+        Assert.Equal(AppCompatibilityProfile.MicrosoftExcel, AppCompatibilityDetector.ClassifyExecutable("EXCEL.EXE"));
+        Assert.Equal(AppCompatibilityProfile.MicrosoftOffice, AppCompatibilityDetector.ClassifyExecutable("winword.exe"));
+
+        var transform = new KeyTransformResult(true, 2, "ươ", "dươ");
+        var batch = InputBatchBuilder.BuildBatch(transform, AppCompatibilityProfile.MicrosoftExcel, browserAutocompleteFix: true);
+
+        // ZWNJ replaces the AutoComplete selection, then 3 Backspaces (ZWNJ + "uo"), then "ươ"
+        Assert.Equal(2 + 3 * 2 + 2 * 2, batch.Length);
+        Assert.Equal(InputBatchBuilder.ZeroWidthNonJoiner, batch[0].ScanCode);
+        Assert.Equal(6, batch.Count(e => e.VirtualKey == InputBatchBuilder.VkBack));
+
+        var noFix = InputBatchBuilder.BuildBatch(transform, AppCompatibilityProfile.MicrosoftExcel, browserAutocompleteFix: false);
+        Assert.Equal(2 * 2 + 2 * 2, noFix.Length);
+    }
 }

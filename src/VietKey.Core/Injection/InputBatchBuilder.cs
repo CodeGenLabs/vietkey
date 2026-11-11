@@ -44,8 +44,11 @@ public static class InputBatchBuilder
             return Array.Empty<SimulatedKeyEvent>();
         }
 
+        // Browser address bars and Excel AutoComplete select a suggested suffix after the caret; the first
+        // Backspace would only delete that selection ("duo[ng]" + w -> "duươ"). Typing a throw-away ZWNJ
+        // first replaces the selection, and one extra Backspace removes it again.
         bool prependBrowserFix = browserAutocompleteFix &&
-            appProfile == AppCompatibilityProfile.ChromiumBrowser &&
+            appProfile is AppCompatibilityProfile.ChromiumBrowser or AppCompatibilityProfile.MicrosoftExcel &&
             transformResult.BackspaceCount > 0;
 
         int totalBackspaces = transformResult.BackspaceCount + (prependBrowserFix ? 1 : 0);

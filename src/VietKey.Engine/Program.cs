@@ -75,6 +75,10 @@ public static class Program
         using var hook = new LowLevelKeyboardHook(processor);
         hook.Start();
 
+        // Both hooks run on this thread (message loop), so the reset never races a keystroke
+        using var mouseHook = new LowLevelMouseHook(processor.ResetComposition);
+        mouseHook.Start();
+
         bool shouldShowUi = args.Contains("--show-ui")
             || (args.Contains("--startup") && !reloadCoordinator.CurrentConfig.HideDialogOnStartup);
         if (shouldShowUi)

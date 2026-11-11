@@ -12,6 +12,14 @@ public sealed class LetterSlot
     {
         BaseChar = baseChar;
     }
+
+    public LetterSlot Clone() => new(BaseChar)
+    {
+        Hat = Hat,
+        CrossbarD = CrossbarD,
+        HatSuppressed = HatSuppressed,
+        CrossbarSuppressed = CrossbarSuppressed
+    };
 }
 
 public sealed class SyllableBuffer
@@ -70,4 +78,40 @@ public sealed class SyllableBuffer
     }
 
     public string GetRawString() => new(_rawKeys.ToArray());
+
+    public SyllableBuffer Clone()
+    {
+        var copy = new SyllableBuffer();
+        copy.CopyFrom(this);
+        return copy;
+    }
+
+    public void CopyFrom(SyllableBuffer source)
+    {
+        _slots.Clear();
+        foreach (var slot in source._slots)
+        {
+            _slots.Add(slot.Clone());
+        }
+        _rawKeys.Clear();
+        _rawKeys.AddRange(source._rawKeys);
+        Tone = source.Tone;
+        SuppressedTone = source.SuppressedTone;
+        CompositionSuppressed = source.CompositionSuppressed;
+        DisplayedText = source.DisplayedText;
+    }
+
+    /// <summary>Builds a buffer that mirrors literal text already on screen (no further composition).</summary>
+    public static SyllableBuffer FromLiteral(string text)
+    {
+        var buffer = new SyllableBuffer();
+        foreach (char c in text)
+        {
+            buffer._slots.Add(new LetterSlot(c));
+            buffer._rawKeys.Add(c);
+        }
+        buffer.CompositionSuppressed = true;
+        buffer.DisplayedText = text;
+        return buffer;
+    }
 }

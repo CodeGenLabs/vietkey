@@ -61,7 +61,9 @@ public sealed class AppCompatibilityDetector
                 => AppCompatibilityProfile.ChromiumBrowser,
             "code.exe" or "ms-teams.exe" or "teams.exe" or "slack.exe" or "discord.exe" or "obsidian.exe"
                 => AppCompatibilityProfile.ElectronApp,
-            "winword.exe" or "excel.exe" or "powerpnt.exe" or "outlook.exe"
+            "excel.exe"
+                => AppCompatibilityProfile.MicrosoftExcel,
+            "winword.exe" or "powerpnt.exe" or "outlook.exe"
                 => AppCompatibilityProfile.MicrosoftOffice,
             _ => AppCompatibilityProfile.Standard
         };
