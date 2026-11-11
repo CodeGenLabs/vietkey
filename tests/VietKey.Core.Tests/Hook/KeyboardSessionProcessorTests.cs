@@ -50,6 +50,54 @@ public sealed class KeyboardSessionProcessorTests
 
     // @covers REQ-os-1
     [Fact]
+    public void ProcessKeyDown_RecoversVietnameseTyping_WhenModifierKeyUpWasLostDuringAppSwitch()
+    {
+        var dispatchedBatches = new List<SimulatedKeyEvent[]>();
+        var processor = new KeyboardSessionProcessor(
+            AppConfig.Default,
+            new Dictionary<string, string>(),
+            hwnd => hwnd == 10 ? "chrome.exe" : "code.exe",
+            batch => dispatchedBatches.Add(batch));
+
+        // Alt+Tab / Win+L into an elevated window or the secure desktop: key-downs seen, key-ups never delivered
+        processor.ProcessKeyDown(0xA4, 0, false, false, false, true, false, 10); // VK_LMENU down
+        processor.ProcessKeyDown(0x5B, 0, false, false, false, true, true, 10);  // VK_LWIN down
+
+        // Without reconciliation the stuck flags turn every key into a shortcut
+        Assert.False(processor.ProcessKeyDown('A', 0, false, false, false, false, false, 20));
+        Assert.False(processor.ProcessKeyDown('S', 0, false, false, false, false, false, 20));
+        Assert.Empty(dispatchedBatches);
+
+        // The hook reconciles with the physical key state (all modifiers released) before each non-modifier key
+        processor.ReleaseStaleModifiers(false, false, false, false);
+        Assert.False(processor.ProcessKeyDown('A', 0, false, false, false, false, false, 20));
+        processor.ReleaseStaleModifiers(false, false, false, false);
+        Assert.True(processor.ProcessKeyDown('S', 0, false, false, false, false, false, 20));
+        Assert.Single(dispatchedBatches);
+    }
+
+    // @covers REQ-os-1
+    [Fact]
+    public void ProcessKeyUp_InjectedModifierRelease_ClearsTrackedModifier()
+    {
+        var dispatchedBatches = new List<SimulatedKeyEvent[]>();
+        var processor = new KeyboardSessionProcessor(
+            AppConfig.Default,
+            new Dictionary<string, string>(),
+            _ => "code.exe",
+            batch => dispatchedBatches.Add(batch));
+
+        processor.ProcessKeyDown(0xA4, 0, false, false, false, true, false, 20);
+        // A peer IME re-injects the Alt release
+        processor.ProcessKeyUp(0xA4, InputBatchBuilder.LlkhfInjected, false, false, false, false, 20);
+
+        Assert.False(processor.ProcessKeyDown('A', 0, false, false, false, false, false, 20));
+        Assert.True(processor.ProcessKeyDown('S', 0, false, false, false, false, false, 20));
+        Assert.Single(dispatchedBatches);
+    }
+
+    // @covers REQ-os-1
+    [Fact]
     public void ProcessKeyDown_WhenJapaneseOrCjkImeIsActive_BypassesHiraganaButAllowsHalfWidthAlphanumeric()
     {
         nint japaneseHkl = 0x04110411;

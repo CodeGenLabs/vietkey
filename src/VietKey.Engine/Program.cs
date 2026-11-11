@@ -34,11 +34,12 @@ public static class Program
             NativeMethods.IsForeignImeActive,
             peerArbitrator);
 
+        var configSaver = new BackgroundConfigSaver(store);
         using var tray = new TrayIconHost(reloadCoordinator.CurrentConfig);
         processor.VietnameseModeChanged += enabled =>
         {
             tray.UpdateState(enabled, processor.CurrentConfig.InputMethod);
-            store.Save(processor.CurrentConfig);
+            configSaver.Enqueue(processor.CurrentConfig);
         };
 
         tray.ToggleRequested += () =>
@@ -51,7 +52,7 @@ public static class Program
             var updated = processor.CurrentConfig with { InputMethod = method };
             processor.UpdateConfig(updated, reloadCoordinator.CurrentMacros);
             tray.UpdateState(updated.VietnameseEnabled, updated.InputMethod);
-            store.Save(updated);
+            configSaver.Enqueue(updated);
         };
 
         tray.OpenSettingsRequested += () => settingsLauncher.LaunchSettingsUi();

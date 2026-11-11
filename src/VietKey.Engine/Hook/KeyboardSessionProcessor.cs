@@ -62,6 +62,41 @@ public sealed class KeyboardSessionProcessor
         VietnameseModeChanged?.Invoke(nextMode);
     }
 
+    /// <summary>
+    /// Clears tracked modifier flags whose physical key is reported as released.
+    /// Key-up events can be lost when focus moves to an elevated window, the secure desktop
+    /// (Win+L, UAC) or when a peer IME re-injects them; without this, a stuck Alt/Win/Ctrl flag
+    /// makes every following key look like a shortcut and Vietnamese composition stops.
+    /// Must only be called with authoritative physical state (GetAsyncKeyState) before a non-modifier key.
+    /// </summary>
+    public void ReleaseStaleModifiers(bool shiftDown, bool ctrlDown, bool altDown, bool winDown)
+    {
+        if (!shiftDown)
+        {
+            _shiftPressed = false;
+        }
+        if (!ctrlDown)
+        {
+            _ctrlPressed = false;
+        }
+        if (!altDown)
+        {
+            _altPressed = false;
+        }
+        if (!winDown)
+        {
+            _winPressed = false;
+        }
+        if (!_shiftPressed && !_ctrlPressed && !_altPressed && !_winPressed)
+        {
+            _ctrlShiftChordArmed = false;
+            _otherKeyPressedDuringModifier = false;
+        }
+    }
+
+    public static bool IsModifierVirtualKey(int vk) =>
+        IsShiftVirtualKey(vk) || IsCtrlVirtualKey(vk) || IsAltVirtualKey(vk) || IsWinVirtualKey(vk);
+
     public static bool IsShiftVirtualKey(int vk) => vk is 0x10 or 0xA0 or 0xA1;
     public static bool IsCtrlVirtualKey(int vk) => vk is 0x11 or 0xA2 or 0xA3;
     public static bool IsAltVirtualKey(int vk) => vk is 0x12 or 0xA4 or 0xA5;
@@ -233,6 +268,11 @@ public sealed class KeyboardSessionProcessor
     {
         if (InputBatchBuilder.IsSyntheticInjected(llkhfFlags))
         {
+            // A peer IME may re-inject modifier releases; still honour them so tracked state can't get stuck
+            if (IsModifierVirtualKey(virtualKey))
+            {
+                ReleaseTrackedModifier(virtualKey);
+            }
             return false;
         }
 
@@ -310,6 +350,32 @@ public sealed class KeyboardSessionProcessor
 
         ToggleVietnameseMode(foregroundHwnd);
         return true;
+    }
+
+    private void ReleaseTrackedModifier(int virtualKey)
+    {
+        if (IsShiftVirtualKey(virtualKey))
+        {
+            _shiftPressed = false;
+        }
+        else if (IsCtrlVirtualKey(virtualKey))
+        {
+            _ctrlPressed = false;
+        }
+        else if (IsAltVirtualKey(virtualKey))
+        {
+            _altPressed = false;
+        }
+        else if (IsWinVirtualKey(virtualKey))
+        {
+            _winPressed = false;
+        }
+
+        _ctrlShiftChordArmed = false;
+        if (!_shiftPressed && !_ctrlPressed && !_altPressed && !_winPressed)
+        {
+            _otherKeyPressedDuringModifier = false;
+        }
     }
 
     private static bool TryMapVirtualKeyToChar(int vk, bool shift, bool capsLock, out char ch)

@@ -64,6 +64,13 @@ public sealed class LowLevelKeyboardHook : IDisposable
 
             if (wParam == NativeMethods.WM_KEYDOWN || wParam == NativeMethods.WM_SYSKEYDOWN)
             {
+                if (!KeyboardSessionProcessor.IsModifierVirtualKey(vk))
+                {
+                    // GetAsyncKeyState already reflects modifiers pressed before this key: drop any flag
+                    // left stuck by a key-up we never saw (Alt+Tab to an elevated app, Win+L, UAC...)
+                    _processor.ReleaseStaleModifiers(shift, ctrl, alt, win);
+                }
+
                 bool suppress = _processor.ProcessKeyDown(
                     vk,
                     info.flags,

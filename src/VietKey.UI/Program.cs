@@ -15,7 +15,7 @@ public static class Program
 
         if (args.Contains("--verify-close"))
         {
-            var testApp = new App(store, processExitCallback: () => { });
+            var testApp = new App(store, processExitCallback: () => { }, startupRegistrar: (_, _) => { });
             testApp.MainWindow.CloseAndFlush(enginePath);
             return 0;
         }
