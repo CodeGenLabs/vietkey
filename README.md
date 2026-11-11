@@ -6,7 +6,7 @@
 
 [![.NET 8.0](https://img.shields.io/badge/.NET-8.0%20Windows-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/Platform-Windows%2011-0078D4?logo=windows11)](https://www.microsoft.com/windows)
-[![Release](https://img.shields.io/badge/Release-v1.0.0-2563EB)](https://github.com/CodeGenLabs/vietkey/releases/tag/v1.0.0)
+[![Release](https://img.shields.io/badge/Release-v1.0.1-2563EB)](https://github.com/CodeGenLabs/vietkey/releases/tag/v1.0.1)
 [![Tests](https://img.shields.io/badge/Tests-125%2F125%20Passing-16A34A)](#kiểm-thử-tự-động)
 [![Architecture](https://img.shields.io/badge/RAM-~3--8%20MB%20Idle-0EA5E9)](#kiến-trúc-2-tiến-trình-dual-process)
 
@@ -112,7 +112,7 @@ vietkey/
 ## Hướng dẫn Cài đặt, Sử dụng & Đóng gói (Release)
 
 ### Tải bản phát hành sẵn (Khuyên dùng)
-1. Tải file **[`VietKey_1.0.0.zip`](https://github.com/CodeGenLabs/vietkey/releases/latest)** từ trang **GitHub Releases**.
+1. Tải file **[`VietKey_1.0.1.zip`](https://github.com/CodeGenLabs/vietkey/releases/latest)** từ trang **GitHub Releases**.
 2. Giải nén sẽ được thư mục `VietKey` chỉ gồm đúng **2 file thực thi gọn nhẹ**:
    - **`VietKey.exe`**: Chạy file này để mở **Bảng điều khiển** (đồng thời tự động bật bộ gõ nền nếu chưa chạy).
    - **`VietKey.Engine.exe`**: Tiến trình bộ gõ chạy ngầm dưới khay hệ thống (System Tray).
@@ -138,25 +138,33 @@ dotnet run --project src/VietKey.Engine/VietKey.Engine.csproj -c Release
 ### Cách 2: Đóng gói bản Release Single-File (Chỉ 2 file `.exe` + nén `.zip`)
 Dự án hỗ trợ đóng gói **Single-File** nhúng toàn bộ thư viện `.dll`, cấu hình `.json` và tài nguyên `Assets` (icon, font `EVFont.ttf`) vào thẳng 2 file `.exe` duy nhất:
 
+Dùng script có sẵn `publish.ps1` (chạy ở thư mục gốc repo):
+
+```powershell
+.\publish.ps1                      # Chỉ publish ra publish\VietKey\
+.\publish.ps1 -Zip                 # Publish và nén publish\VietKey_1.0.1.zip
+.\publish.ps1 -Zip -Version 1.1.0  # Nén với số phiên bản tùy chỉnh
+```
+
+Hoặc chạy thủ công từng bước:
+
 ```powershell
 # 1. Xóa thư mục publish cũ (nếu có)
 Remove-Item -Path publish\VietKey -Recurse -Force -ErrorAction SilentlyContinue
 
 # 2. Publish tiến trình nền VietKey.Engine.exe (Single-File)
-dotnet publish src\VietKey.Engine\VietKey.Engine.csproj -c Release -r win-x64 --no-self-contained `
-  -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o publish\VietKey
+dotnet publish src\VietKey.Engine\VietKey.Engine.csproj -c Release -r win-x64 --no-self-contained -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -o publish\VietKey
 
 # 3. Publish giao diện chính VietKey.exe vào cùng thư mục publish\VietKey (Single-File)
-dotnet publish src\VietKey.UI\VietKey.UI.csproj -c Release -r win-x64 --no-self-contained `
-  -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:DeleteExistingFiles=false -o publish\VietKey
+dotnet publish src\VietKey.UI\VietKey.UI.csproj -c Release -r win-x64 --no-self-contained -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false -p:DeleteExistingFiles=false -o publish\VietKey
 
-# 4. Nén thành gói phân phối VietKey_1.0.0.zip (bên trong có thư mục VietKey chứa 2 file .exe)
-Compress-Archive -Path publish\VietKey -DestinationPath publish\VietKey_1.0.0.zip -Force
+# 4. Nén thành gói phân phối VietKey_1.0.1.zip (bên trong có thư mục VietKey chứa 2 file .exe)
+Compress-Archive -Path publish\VietKey -DestinationPath publish\VietKey_1.0.1.zip -Force
 ```
 
 Sau khi chạy xong:
 - Thư mục `publish\VietKey\` chỉ chứa đúng 2 file: **`VietKey.exe`** và **`VietKey.Engine.exe`**.
-- File nén `publish\VietKey_1.0.0.zip` chứa thư mục `VietKey/` bên ngoài và 2 file `.exe` bên trong, sẵn sàng để tải lên GitHub Releases.
+- File nén `publish\VietKey_1.0.1.zip` chứa thư mục `VietKey/` bên ngoài và 2 file `.exe` bên trong, sẵn sàng để tải lên GitHub Releases.
 
 ---
 
